@@ -8,6 +8,8 @@ from minisast.scanner import scan_file, scan_path
 def main():
     bad_code = """
 import os
+import subprocess
+import hashlib
 
 password = "supersecret123"
 
@@ -17,6 +19,11 @@ x = cmd
 eval("print(1)")
 exec("print(2)")
 os.system(x)
+
+subprocess.run(cmd, shell=True)
+subprocess.Popen(x)
+hashlib.md5(b"hello")
+hashlib.sha1(b"world")
 """
 
     with tempfile.TemporaryDirectory() as tmpdir:

@@ -1,16 +1,22 @@
 import ast
 
 from minisast.finding import Finding
+from minisast.rules.crypto import check_weak_hash_use
+from minisast.rules.dangerous_calls import (
+    check_command_injection,
+    check_eval_use,
+    check_exec_use,
+    check_os_system_use,
+    check_subprocess_rules,
+)
+from minisast.rules.secrets import check_hardcoded_secret
 
 
 class Analyzer(ast.NodeVisitor):
-    SUSPICIOUS_SECRET_NAMES = {
-        "password",
-        "passwd",
-        "secret",
-        "token",
-        "api_key",
-        "apikey",
+    SUBPROCESS_FUNCTIONS = {
+        "subprocess.run",
+        "subprocess.call",
+        "subprocess.Popen",
     }
 
     def __init__(self, file_path):
@@ -49,6 +55,13 @@ class Analyzer(ast.NodeVisitor):
     def is_tainted_name(self, node):
         return isinstance(node, ast.Name) and node.id in self.tainted_vars
 
+    def has_shell_true(self, node):
+        for kw in node.keywords:
+            if kw.arg == "shell":
+                if isinstance(kw.value, ast.Constant) and kw.value.value is True:
+                    return True
+        return False
+
     def visit_Assign(self, node):
         if isinstance(node.value, ast.Call):
             func_name = self.get_full_name(node.value.func)
@@ -62,53 +75,18 @@ class Analyzer(ast.NodeVisitor):
                 if isinstance(target, ast.Name):
                     self.tainted_vars.add(target.id)
 
-        if self.is_string_literal(node.value):
-            value = node.value.value
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    if target.id.lower() in self.SUSPICIOUS_SECRET_NAMES:
-                        self.add_finding(
-                            node,
-                            "HARDCODED_SECRET",
-                            "HIGH",
-                            f"Possible hardcoded secret assigned to '{target.id}'",
-                        )
+        check_hardcoded_secret(self, node)
 
         self.generic_visit(node)
 
     def visit_Call(self, node):
         func_name = self.get_full_name(node.func)
 
-        if func_name == "eval":
-            self.add_finding(
-                node,
-                "EVAL_USE",
-                "HIGH",
-                "Use of eval() is dangerous",
-            )
-
-        if func_name == "exec":
-            self.add_finding(
-                node,
-                "EXEC_USE",
-                "HIGH",
-                "Use of exec() is dangerous",
-            )
-
-        if func_name == "os.system":
-            if node.args and self.is_tainted_name(node.args[0]):
-                self.add_finding(
-                    node,
-                    "COMMAND_INJECTION",
-                    "CRITICAL",
-                    "Tainted input reaches os.system()",
-                )
-            else:
-                self.add_finding(
-                    node,
-                    "OS_SYSTEM_USE",
-                    "MEDIUM",
-                    "Use of os.system() can be dangerous",
-                )
+        check_eval_use(self, node, func_name)
+        check_exec_use(self, node, func_name)
+        check_os_system_use(self, node, func_name)
+        check_command_injection(self, node, func_name)
+        check_subprocess_rules(self, node, func_name)
+        check_weak_hash_use(self, node, func_name)
 
         self.generic_visit(node)
