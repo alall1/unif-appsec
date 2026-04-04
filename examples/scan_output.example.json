@@ -1,0 +1,78 @@
+{
+  "scan_result_schema_version": "1.0.0",
+  "findings": [
+    {
+      "schema_version": "1",
+      "finding_id": "550e8400-e29b-41d4-a716-446655440000",
+      "fingerprint": "fp1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "engine": "sast",
+      "module": "python_sast",
+      "rule_id": "python.eval_injection",
+      "title": "Use of eval with untrusted input",
+      "severity": "high",
+      "confidence": "high",
+      "category": "injection",
+      "status": "open",
+      "location_type": "code",
+      "evidence_type": "code_trace",
+      "created_at": "2026-04-03T12:00:00Z",
+      "suppressed": false,
+      "description": "Taint flow from user input into eval() sink.",
+      "locations": [
+        {
+          "file_path": "app/handlers.py",
+          "start_line": 42,
+          "end_line": 42,
+          "start_col": 5,
+          "end_col": 40,
+          "function_name": "handle_request"
+        }
+      ],
+      "sast_evidence": {
+        "code_snippet": "eval(user_expr)",
+        "matched_sink": "eval",
+        "matched_source": "request.args",
+        "trace_summary": "args → user_expr → eval"
+      },
+      "trace": [
+        {
+          "step_index": 0,
+          "kind": "source",
+          "label": "HTTP parameter",
+          "file_path": "app/handlers.py",
+          "line": 10,
+          "column": 12,
+          "symbol": "request.args",
+          "note": null
+        },
+        {
+          "step_index": 1,
+          "kind": "sink",
+          "label": "eval sink",
+          "file_path": "app/handlers.py",
+          "line": 42,
+          "column": 5,
+          "symbol": "eval",
+          "note": null
+        }
+      ]
+    }
+  ],
+  "module_results": [
+    {
+      "module": "python_sast",
+      "warnings": [
+        {
+          "code": "partial_analysis",
+          "message": "Inter-file propagation disabled for this rule pack.",
+          "details": { "files_skipped": 2 }
+        }
+      ],
+      "errors": [],
+      "metrics": {
+        "duration_ms": 125.5,
+        "files_analyzed": 120
+      }
+    }
+  ]
+}

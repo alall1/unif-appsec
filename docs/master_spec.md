@@ -283,11 +283,14 @@ Recommended repo structure:
       schemas/
         finding.schema.json
         config.schema.json
+        scan_result.schema.json
       docs/
         master_spec.md
         findings_schema.md
         config_reference.md
         architecture.md
+        module_contracts.md
+        implementation_plan.md
       tests/
         unit/
         integration/
@@ -374,7 +377,13 @@ Configuration precedence must be:
 2. explicit config file values
 3. CLI flags
 
-If a module-specific setting conflicts with a profile default, the explicit module setting wins.
+Merge semantics:
+- Begin from the active profile defaults, then overlay the entire config document (global keys and nested objects such as `sast` / `dast`).
+- Then overlay CLI-provided settings onto the merged document.
+
+If a module-specific setting conflicts with a profile default for the same key, the explicit value from the config file `sast` or `dast` section wins over the profile default for that key.
+
+CLI flags that correspond to a specific setting (for example `--fail-on` mapping to `policies.fail_on_severity`, or `--profile` selecting the profile) override the merged value for that setting after the config file overlay.
 
 ### 8.6 Plugin System
 Every module must register through the plugin interface.
@@ -411,7 +420,7 @@ At minimum:
 - max evidence bytes per finding
 - max DAST crawl depth
 - max DAST requests per minute
-- max response body bytes retained in evidence
+- max response body bytes retained in evidence (config key under `limits`: `max_response_body_bytes`)
 
 ## 9. Findings Schema
 
@@ -473,7 +482,7 @@ finding_id:
 - unique per emitted finding instance
 
 fingerprint:
-- stable identifier for near-duplicate matching under the documented fingerprint strategy
+- stable identifier for near-duplicate matching; V1 algorithm is normative in Section 9.11
 
 engine:
 - scanner family, e.g. sast or dast
@@ -519,6 +528,9 @@ evidence_type:
 
 suppressed:
 - boolean
+
+created_at:
+- MUST be an RFC 3339 timestamp in UTC using the `Z` offset designator (example: `2026-04-03T12:00:00Z`)
 
 ### 9.5 Typed Location Objects
 A finding may include one or more typed location objects depending on the finding class.
@@ -619,6 +631,76 @@ Examples:
 - module runtime exception
 - unsupported target
 
+### 9.10 Module Scan Result and Aggregate Scan Output
+
+#### 9.10.1 ModuleScanResult shape
+Each plugin `scan` return value must map to a structured **ModuleScanResult** with:
+
+- **findings**: array of normalized finding objects (Section 9)
+- **warnings**: array of structured warning entries (non-fatal)
+- **errors**: array of structured error entries (failures for that module)
+- **metrics**: object (Section 9.10.2)
+
+Warning and error entries must be structured objects with at minimum:
+
+- **code**: short stable machine-readable identifier (string)
+- **message**: human-readable description (string)
+- **details**: optional object for structured context; consumers must ignore unknown keys
+
+#### 9.10.2 Module metrics (minimum optional keys)
+Metrics may include additional keys; consumers must ignore unknown keys.
+
+When applicable, modules should populate:
+
+- **duration_ms**: wall-clock time spent in the module scan (number)
+- **files_analyzed**: Python files analyzed (integer; SAST)
+- **requests_sent**: HTTP requests issued (integer; DAST)
+
+#### 9.10.3 Aggregate machine-readable scan document
+The primary JSON scan output must include a stable top-level envelope separate from individual finding rows:
+
+- **scan_result_schema_version**: version of this scan-result envelope (string)
+- **findings**: final aggregated list after module aggregation and suppression application
+- **module_results**: array of per-module summaries, each containing at minimum:
+  - **module**: module name (string; must match finding `module` values from that plugin)
+  - **warnings**: as returned by the plugin
+  - **errors**: as returned by the plugin
+  - **metrics**: as returned by the plugin
+
+`module_results` must not duplicate the full findings list per module; findings appear only in the top-level **findings** array. Each finding carries its own `module` field for attribution.
+
+### 9.11 Fingerprint Algorithm (V1)
+Because `fingerprint` is a required finding field (Section 9.3), V1 requires a **normative** fingerprint algorithm so suppressions, deduplication, and exports are stable across runs and implementations.
+
+Fingerprints must **not** depend on: `finding_id`, `created_at`, `suppressed`, `status`, or any free-text description fields.
+
+Fingerprint string format:
+
+- **fp1:** followed by 64 lowercase hexadecimal characters (SHA-256 digest of the canonical material below)
+
+Canonical material (UTF-8 string) is formed by concatenating the following lines in order, each line terminated by a single newline (`\n`), using empty string for optional missing values:
+
+1. `schema_version=<value>`
+2. `engine=<value>`
+3. `module=<value>`
+4. `rule_id=<value>`
+5. `location_type=<value>`
+6. `evidence_type=<value>`
+7. `location_key=<value>` where `location_key` is:
+   - **code**: `file_path` normalized to a POSIX relative path from the scan root with `.` and `..` resolved where safe, then `|start_line=<n>|end_line=<n>|function=<name or empty>`
+   - **http**: `method` uppercased, then `|url=<canonical_url>|param=<name or empty>|endpoint_sig=<value or empty>` where **canonical_url** is the URL without fragment, with scheme and host lowercased, path left as provided after UTF-8 decoding, and query string parameters sorted lexicographically by parameter name (UTF-8), then by value, using repeated keys in sorted order; parameters URL-encoded in UTF-8 using standard percent-encoding
+   - **dependency** or **resource** (future modules): stable pipe-delimited encoding of the primary location fields defined for that location type in Section 9.5, with keys sorted alphabetically
+
+If multiple code locations attach to one finding, use the **primary** location (the narrowest sink or check location as defined by the emitting module; modules must document their primary-location rule).
+
+The SHA-256 digest is computed over UTF-8 bytes of the canonical material string, then encoded as lowercase hex with the `fp1:` prefix.
+
+### 9.12 Exported Findings Sort Order
+When findings are exported as an ordered list (JSON array, SARIF ordering, etc.), the order must be deterministic:
+
+1. Sort ascending by `fingerprint` (UTF-8 lexicographic byte order)
+2. Tie-break ascending by `finding_id` (UTF-8 lexicographic byte order)
+
 ## 10. Plugin Interface Specification
 
 ### 10.1 Plugin Contract
@@ -634,8 +716,13 @@ Each plugin must implement the following conceptual interface:
 Optional plugin capabilities:
 - healthcheck() -> status
 
+**supported_profiles() semantics:**
+- If it returns a **non-empty** list, the plugin declares that it only supports those profile names; the core must reject or skip the module when the selected profile is not in that list (implementation choice, but behavior must be explicit and tested).
+- If it returns an **empty** list, the plugin accepts **all** platform-defined V1 profiles (`fast`, `balanced`, `deep`).
+
 ### 10.2 ModuleScanResult
-Each plugin must return a structured scan result containing:
+Each plugin must return a structured scan result conforming to Section 9.10.1:
+
 - normalized findings
 - module warnings
 - module errors
@@ -738,6 +825,11 @@ Possible source types:
 - request.json for explicitly modeled frameworks only
 - environment input if modeled
 - file reads only if explicitly marked as untrusted in rules
+
+#### 11.7.1 V1 baseline for framework web request sources
+V1 does **not** require any built-in Flask, Django, FastAPI, or other framework-specific request object modeling.
+
+Rules or optional rule packs may introduce **explicitly named** framework adapters (documented alongside the rule). Until such an adapter is present for a given framework, `request.args`, `request.form`, `request.json`, and similar patterns must **not** be treated as automatic taint sources.
 
 ### 11.8 Sink Examples
 Possible sink types:
@@ -936,6 +1028,7 @@ limits:
 - max_scan_duration_seconds
 - max_requests_per_minute
 - max_crawl_depth
+- max_response_body_bytes
 
 sast:
 - language
@@ -963,11 +1056,16 @@ Suppressions must:
 - be applied after findings are generated
 - not suppress scan errors
 
-Suppression precedence:
+Suppression precedence (highest priority first):
 1. fingerprint
 2. rule + exact location
 3. rule + exact endpoint
 4. rule + path glob
+
+Evaluation rule:
+- A finding is suppressed if **any** suppression rule matches.
+- When attributing `suppression_reason` (or equivalent), use the **highest-priority** matching rule from the list above (fingerprint beats rule+location, and so on).
+- Within the **same** precedence tier, if multiple rules match, implementations should use the **first** matching rule in config file order for attribution.
 
 ## 14. Testing Strategy
 
@@ -994,6 +1092,7 @@ Integration tests must verify:
 - plugin loading
 - combined scan execution
 - unified output generation
+- aggregate JSON envelope fields (`scan_result_schema_version`, `findings`, `module_results`) and deterministic finding order (Sections 9.10.3 and 9.12)
 - exit code behavior
 - partial failure behavior
 
@@ -1005,6 +1104,8 @@ JSON output must be:
 - machine-readable
 - complete for emitted findings
 - deterministically sorted for export
+
+The top-level scan document must follow Section 9.10.3 (envelope with `scan_result_schema_version`, `findings`, and `module_results`). The `findings` array order must follow Section 9.12.
 
 V1 does not guarantee identical DAST runtime observations across repeated live scans.
 
@@ -1096,6 +1197,8 @@ V1 is successful if:
 - modular core platform
 - plugin system
 - unified findings schema
+- stable fingerprinting per Section 9.11 (required because `fingerprint` is a required finding field)
+- scan result envelope per Section 9.10.3 and `scan_result.schema.json` in repository schemas
 - config system
 - JSON output
 - CLI
@@ -1109,7 +1212,6 @@ V1 is successful if:
 - suppression system
 - scan profiles
 - OpenAPI import
-- stable fingerprinting
 - structured evidence formatting
 - integration tests
 

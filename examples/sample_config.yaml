@@ -1,0 +1,74 @@
+# Sample Unified AppSec configuration (config_version 1).
+# Precedence: profile defaults → this file → CLI flags (see docs/master_spec.md §8.5).
+
+config_version: "1"
+
+project:
+  name: example-service
+
+scan:
+  profile: balanced
+  modules:
+    - python_sast
+    - http_dast
+  include_paths: []
+  exclude_paths:
+    - "**/venv/**"
+    - "**/.git/**"
+
+output:
+  format: json
+  path: appsec-results.json
+  pretty: false
+  sarif:
+    enabled: false
+    path: null
+
+policies:
+  fail_on_severity: medium
+  confidence_threshold: low
+
+limits:
+  max_scan_duration_seconds: 600
+  max_findings_per_module: 5000
+  max_evidence_bytes: 65536
+  max_crawl_depth: 2
+  max_requests_per_minute: 120
+  max_response_body_bytes: 262144
+
+sast:
+  language: python
+  max_taint_depth: 4
+  rules_path: null
+  enabled_rules: []
+  disabled_rules: []
+
+dast:
+  target_url: https://example.invalid/api
+  openapi_path: null
+  endpoint_seeds: []
+  auth: {}
+  crawl:
+    enabled: true
+  checks: {}
+  rate_limit: {}
+  timeout: 30
+
+suppressions:
+  - kind: fingerprint
+    fingerprint: "fp1:0000000000000000000000000000000000000000000000000000000000000000"
+    justification: "Documented false positive in ticket APPSEC-42"
+  - kind: rule_location
+    rule_id: "python.command_injection"
+    file_path: "legacy/cli.py"
+    line: 10
+    justification: "Legacy admin-only tool; tracked for removal"
+  - kind: rule_endpoint
+    rule_id: "dast.passive.missing_header"
+    url: "https://example.invalid/health"
+    method: "GET"
+    justification: "Health endpoint intentionally minimal"
+  - kind: rule_path_glob
+    rule_id: "python.sql_injection"
+    path_glob: "tests/**"
+    justification: "Test fixtures"

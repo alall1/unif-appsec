@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unif-appsec.dev/schemas/config.schema.json",
+  "title": "Unified AppSec Config (v1)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["config_version"],
+  "properties": {
+    "config_version": { "type": "string", "const": "1" },
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      }
+    },
+    "scan": {
+      "type": "object",
+      "properties": {
+        "modules": { "type": "array", "items": { "type": "string" } },
+        "profile": { "type": "string", "enum": ["fast", "balanced", "deep"] },
+        "include_paths": { "type": "array", "items": { "type": "string" } },
+        "exclude_paths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "format": { "type": "string", "enum": ["json"] },
+        "path": { "type": "string" },
+        "pretty": { "type": "boolean" },
+        "sarif": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "path": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "fail_on_severity": {
+          "type": "string",
+          "enum": ["info", "low", "medium", "high", "critical"]
+        },
+        "confidence_threshold": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_scan_duration_seconds": { "type": "integer", "minimum": 1 },
+        "max_findings_per_module": { "type": "integer", "minimum": 1 },
+        "max_evidence_bytes": { "type": "integer", "minimum": 1 },
+        "max_crawl_depth": { "type": "integer", "minimum": 0 },
+        "max_requests_per_minute": { "type": "integer", "minimum": 1 },
+        "max_response_body_bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sast": { "type": "object" },
+    "dast": { "type": "object" },
+    "suppressions": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["kind", "fingerprint", "justification"],
+            "properties": {
+              "kind": { "const": "fingerprint" },
+              "fingerprint": { "type": "string" },
+              "justification": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "rule_id", "file_path", "line", "justification"],
+            "properties": {
+              "kind": { "const": "rule_location" },
+              "rule_id": { "type": "string" },
+              "file_path": { "type": "string" },
+              "line": { "type": "integer", "minimum": 1 },
+              "justification": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "rule_id", "url", "method", "justification"],
+            "properties": {
+              "kind": { "const": "rule_endpoint" },
+              "rule_id": { "type": "string" },
+              "url": { "type": "string" },
+              "method": { "type": "string" },
+              "endpoint_signature": { "type": "string" },
+              "justification": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "rule_id", "path_glob", "justification"],
+            "properties": {
+              "kind": { "const": "rule_path_glob" },
+              "rule_id": { "type": "string" },
+              "path_glob": { "type": "string" },
+              "justification": { "type": "string" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
