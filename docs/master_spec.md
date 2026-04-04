@@ -26,6 +26,9 @@ It is a unified AppSec platform architecture with:
 - developer workflow support
 - extension points for future security capabilities
 
+V1 is intentionally limited to a credible, well-architected platform with SAST and DAST only.
+It does not attempt enterprise-scale coverage.
+
 ### 1.4 Design Philosophy
 The platform should feel like a real security tool:
 - modular
@@ -53,21 +56,23 @@ The core platform is responsible for:
 - scan orchestration
 - plugin/module registration
 - normalized findings schema
+- scan result aggregation
 - profile handling
 - output writing
 - suppression plumbing
 - logging
 - exit code handling
+- resource and evidence limits
 - future extension points for IAST, SCA, and IaC
 
 ### 2.3 SAST Responsibilities
 The SAST module is responsible for:
 - static analysis of Python source code
 - AST-based parsing
-- intrafile interprocedural taint analysis
+- bounded intrafile interprocedural taint analysis
 - rule-driven vulnerability detection
 - taint traces from source to sink
-- generation of findings in the shared schema
+- generation of normalized findings through the shared schema
 
 ### 2.4 DAST Responsibilities
 The DAST module is responsible for:
@@ -77,8 +82,8 @@ The DAST module is responsible for:
 - passive checks
 - active checks
 - basic authenticated scanning
-- evidence capture
-- generation of findings in the shared schema
+- structured evidence capture
+- generation of normalized findings through the shared schema
 
 ## 3. Explicit Non-Goals for V1
 
@@ -90,12 +95,16 @@ The following are out of scope for V1:
 - multi-tenant SaaS deployment
 - browser-heavy full SPA automation
 - complex SSO/MFA handling
+- multi-role authorization testing
 - enterprise-scale language coverage
 - production-grade full IAST agent
 - full SCA implementation
 - full IaC implementation
 - historical trend analytics
 - advanced vulnerability deduplication across large datasets
+- business-logic vulnerability discovery
+- blind/OAST infrastructure
+- arbitrary JavaScript execution during DAST
 
 ## 4. Supported Targets in V1
 
@@ -105,10 +114,29 @@ The following are out of scope for V1:
 ### 4.2 DAST Targets
 - HTTP applications
 - REST APIs
-- API endpoints discoverable from:
+- API endpoints supplied from one or more of:
   - start URL
   - provided base URL
   - optional OpenAPI specification
+  - explicit endpoint seeds from config
+
+### 4.3 Target Validation Rules
+The platform must validate targets before running scans.
+
+SAST target validation must confirm:
+- target path exists
+- target path is a file or directory
+- target contains at least one supported file type
+
+DAST target validation must confirm:
+- target URL is syntactically valid
+- scheme is allowed by config
+- redirects are handled according to config
+- host and scope rules are satisfied
+
+V1 defaults:
+- same-origin only for crawl expansion
+- no automatic scanning of newly discovered hosts unless explicitly allowed
 
 ## 5. Architecture Principles
 
@@ -117,7 +145,8 @@ Core platform code must not contain SAST-specific or DAST-specific analysis logi
 Modules must not reimplement core platform responsibilities.
 
 ### 5.2 Unified Schema
-All findings must conform to one normalized schema, even if some fields are unused by a given module.
+All findings must conform to one normalized schema.
+The schema must support code, HTTP, dependency, and infrastructure findings, but V1 only requires active support for code and HTTP findings.
 
 ### 5.3 Extensibility
 The architecture must support future modules without requiring a redesign of:
@@ -127,18 +156,40 @@ The architecture must support future modules without requiring a redesign of:
 - findings schema
 
 ### 5.4 Explainability
-Every finding should include enough evidence to explain why it exists.
-For SAST, this usually means a trace.
-For DAST, this usually means request/response evidence.
+Every finding must include the best available evidence type for its finding class.
+
+Examples:
+- SAST taint findings should include a trace when available
+- SAST pattern findings should include matched code evidence
+- DAST findings should include request/response summaries and check-specific observations
+- low-context heuristic findings may include structured metadata rather than a full trace
 
 ### 5.5 Machine-Readable Output
-All outputs must be deterministic and suitable for:
+All outputs must be suitable for:
 - CI pipelines
 - IDE/editor integrations
 - future GitHub/code scanning interoperability
 
+Deterministic behavior in V1 means:
+- stable field names
+- stable output structure
+- stable sorting rules for exported findings
+- stable fingerprint generation under the documented fingerprint algorithm
+
+V1 does not guarantee that DAST runtime behavior is identical across repeated scans against a live target.
+
 ### 5.6 Honest Scope
 The system must not claim coverage it does not actually implement.
+
+### 5.7 Safety of the Scanner
+The scanner must be designed to avoid unsafe behavior.
+
+Examples:
+- SAST must not execute target code
+- DAST must respect scope boundaries
+- DAST must not follow external hosts unless configured
+- config and file paths must be resolved safely
+- evidence export must redact sensitive data
 
 ## 6. High-Level Architecture
 
@@ -163,10 +214,20 @@ A scan request flows through the following stages:
 4. Modules selected
 5. Profile resolved
 6. Module scans executed
-7. Findings normalized
+7. Findings aggregated
 8. Suppressions applied
 9. Findings exported
 10. Exit code returned
+
+### 6.3 Partial Failure Model
+If one module fails and another succeeds:
+- successful module findings should still be exportable
+- module errors should be recorded in the scan result
+- exit code behavior must follow the documented failure policy
+
+V1 default:
+- any module/config/runtime failure results in exit code 2
+- findings are still exported if safely available
 
 ## 7. Repository Structure
 
@@ -185,7 +246,7 @@ Recommended repo structure:
         findings/
           models.py
           fingerprints.py
-            normalize.py
+          normalize.py
         orchestration/
           runner.py
           planner.py
@@ -252,6 +313,7 @@ The CLI must support:
 - specifying output path
 - selecting output format
 - severity threshold for exit status
+- confidence threshold for exit status
 - include/exclude paths
 - target URL or OpenAPI path for DAST
 
@@ -264,6 +326,7 @@ Example flags:
 - --format
 - --output
 - --fail-on
+- --confidence-threshold
 - --include
 - --exclude
 - --target-url
@@ -276,6 +339,7 @@ The config system must:
 - support global settings and module-specific settings
 - merge defaults with explicit overrides
 - support profiles
+- support versioned config documents
 
 ### 8.4 Profiles
 Profiles:
@@ -287,7 +351,7 @@ Profile intent:
 
 fast:
 - minimum scan time
-- lower depth
+- lower analysis depth
 - safer/lighter checks
 - suitable for local developer loops
 
@@ -303,11 +367,20 @@ deep:
 - more expensive SAST propagation depth
 - suitable for scheduled scans or dedicated testing
 
-### 8.5 Plugin System
+### 8.5 Profile and Override Precedence
+Configuration precedence must be:
+
+1. profile defaults
+2. explicit config file values
+3. CLI flags
+
+If a module-specific setting conflicts with a profile default, the explicit module setting wins.
+
+### 8.6 Plugin System
 Every module must register through the plugin interface.
 The core platform must not know module internals beyond the plugin contract.
 
-### 8.6 Logging
+### 8.7 Logging
 Logging must be structured and clear.
 At minimum:
 - scan start
@@ -318,11 +391,27 @@ At minimum:
 - warning summaries
 - output path summary
 
-### 8.7 Exit Codes
+### 8.8 Exit Codes
 Use deterministic exit codes:
-- 0 = scan completed, no findings above threshold
-- 1 = scan completed, findings above threshold
-- 2 = usage/config/runtime failure
+- 0 = scan completed, no unsuppressed findings above threshold
+- 1 = scan completed, at least one unsuppressed finding above threshold
+- 2 = usage/config/runtime/module failure
+
+A finding contributes to failure only if:
+- severity is greater than or equal to fail_on_severity
+- confidence is greater than or equal to confidence_threshold
+- suppressed is false
+
+### 8.9 Resource Limits
+The platform must support resource guardrails.
+
+At minimum:
+- max scan duration per module
+- max findings per module
+- max evidence bytes per finding
+- max DAST crawl depth
+- max DAST requests per minute
+- max response body bytes retained in evidence
 
 ## 9. Findings Schema
 
@@ -339,41 +428,52 @@ V1 will primarily use:
 - code findings for SAST
 - HTTP findings for DAST
 
-### 9.2 Finding Object
+### 9.2 Schema Design
+The schema consists of:
+- a required core finding object
+- optional typed extension objects
+
+This keeps V1 usable for SAST and DAST while preserving extension points for future SCA, IaC, and IAST support.
+
+### 9.3 Required Core Finding Fields
 Each finding must contain:
 
+- schema_version
 - finding_id
 - fingerprint
 - engine
 - module
 - rule_id
 - title
-- description
-- category
-- subcategory
 - severity
 - confidence
+- category
 - status
-- location
-- evidence
-- trace
+- location_type
+- evidence_type
+- created_at
+- suppressed
+
+Optional top-level fields:
+- description
+- subcategory
 - remediation
 - references
 - tags
-- cwe
-- cve
-- created_at
-- correlation_keys
-- suppressed
 - suppression_reason
+- correlation
+- metadata
 
-### 9.3 Required Semantics
+### 9.4 Required Semantics
+
+schema_version:
+- version of the finding schema
 
 finding_id:
 - unique per emitted finding instance
 
 fingerprint:
-- stable identifier for near-duplicate matching across runs
+- stable identifier for near-duplicate matching under the documented fingerprint strategy
 
 engine:
 - scanner family, e.g. sast or dast
@@ -402,12 +502,28 @@ status:
 - one of:
   - open
   - suppressed
-  - error
 
-### 9.4 Location Model
-The schema must support multiple location types.
+location_type:
+- one of:
+  - code
+  - http
+  - dependency
+  - resource
 
-Code location fields:
+evidence_type:
+- one of:
+  - code_trace
+  - code_match
+  - http_exchange
+  - metadata_only
+
+suppressed:
+- boolean
+
+### 9.5 Typed Location Objects
+A finding may include one or more typed location objects depending on the finding class.
+
+#### Code Location
 - file_path
 - start_line
 - end_line
@@ -415,35 +531,45 @@ Code location fields:
 - end_col
 - function_name
 
-HTTP location fields:
+#### HTTP Location
 - url
 - method
 - parameter
 - endpoint_signature
 
-Resource location fields reserved for future:
+#### Future Dependency Location
+- ecosystem
+- package_name
+- package_version
+- dependency_path
+
+#### Future Resource Location
 - resource_type
 - resource_id
 - resource_path
+- provider
 
-### 9.5 Evidence Model
+### 9.6 Typed Evidence Objects
 Evidence should be structured, not just free text.
 
-For SAST:
-- code snippet
-- matched sink
-- matched source
-- sanitizer summary
-- trace summary
+#### SAST Evidence
+Possible fields:
+- code_snippet
+- matched_sink
+- matched_source
+- sanitizer_summary
+- trace_summary
 
-For DAST:
-- request summary
-- response summary
-- matched payload
-- observed behavior
-- response markers
+#### DAST Evidence
+Possible fields:
+- request_summary
+- response_summary
+- matched_payload
+- observed_behavior
+- response_markers
+- baseline_comparison
 
-### 9.6 Trace Model
+### 9.7 Trace Model
 For SAST and future IAST, trace must support ordered steps.
 
 Trace step fields:
@@ -456,7 +582,7 @@ Trace step fields:
 - symbol
 - note
 
-Trace kinds:
+Trace kinds for V1:
 - source
 - propagation
 - sanitizer
@@ -464,8 +590,12 @@ Trace kinds:
 - call
 - return
 
-### 9.7 Correlation Keys
-Reserve correlation keys for future unified analysis:
+Future modules may extend trace semantics without breaking existing V1 trace handling.
+
+### 9.8 Correlation Object
+Reserve a structured correlation object for future unified analysis.
+
+Possible keys in V1:
 - route
 - sink_type
 - source_type
@@ -475,6 +605,19 @@ Reserve correlation keys for future unified analysis:
 - cwe
 - host
 - endpoint
+
+Future modules may add additional structured keys such as package identifiers or resource addresses.
+
+### 9.9 Scan Errors
+Scan errors are not findings.
+
+They must be represented separately at the scan result or module result level.
+
+Examples:
+- config validation failure
+- network timeout
+- module runtime exception
+- unsupported target
 
 ## 10. Plugin Interface Specification
 
@@ -486,12 +629,23 @@ Each plugin must implement the following conceptual interface:
 - supported_target_types()
 - supported_profiles()
 - validate_target(target, config)
-- scan(target, config, context) -> findings
+- scan(target, config, context) -> ModuleScanResult
+
+Optional plugin capabilities:
 - healthcheck() -> status
 
-### 10.2 Plugin Rules
+### 10.2 ModuleScanResult
+Each plugin must return a structured scan result containing:
+- normalized findings
+- module warnings
+- module errors
+- module metrics
+
+Plugins may use internal analysis models, but findings must be normalized before being returned to the core platform.
+
+### 10.3 Plugin Rules
 Plugins must:
-- return normalized findings or module-native findings that are normalized before export
+- return normalized findings through ModuleScanResult
 - avoid direct CLI behavior
 - avoid direct output writing
 - use shared config objects
@@ -506,26 +660,50 @@ The SAST module must be a real static analyzer for Python, not a regex-only scan
 V1 SAST supports:
 - AST parsing
 - symbol tracking
-- function-aware analysis
-- intrafile interprocedural taint propagation
+- bounded function-aware analysis
+- bounded intrafile interprocedural taint propagation
 - rule-driven sources/sinks/sanitizers/propagators
 - trace generation
 
-### 11.3 SAST Analysis Pipeline
+### 11.3 Explicit V1 Analysis Boundaries
+V1 SAST is intentionally limited.
+
+Supported in V1:
+- local variables
+- direct assignments
+- simple return-value propagation
+- direct function calls within the same file
+- argument-to-parameter taint transfer
+- simple propagation through common expression forms
+
+Not supported in V1:
+- complete interfile propagation
+- decorators
+- closures
+- dynamic attribute access
+- reflective dispatch
+- advanced alias modeling
+- exception-sensitive flow
+- container element sensitivity
+- generator/coroutine flow sensitivity
+- whole-program soundness
+- custom metaprogramming support
+
+### 11.4 SAST Analysis Pipeline
 The SAST pipeline should be:
 
 1. collect Python files
 2. parse AST
 3. build file-level symbol/function map
-4. resolve assignments and call relationships within file scope
+4. resolve supported assignments and supported call relationships within file scope
 5. identify sources
-6. propagate taint
+6. propagate taint through supported constructs
 7. detect flows into sinks
-8. apply sanitization logic
+8. apply sanitization logic where modeled
 9. emit traces
 10. convert to normalized findings
 
-### 11.4 Supported Rule Concepts
+### 11.5 Supported Rule Concepts
 Each rule definition must support:
 - id
 - title
@@ -539,27 +717,29 @@ Each rule definition must support:
 - propagators
 - metadata tags
 
-### 11.5 Initial SAST Rule Families
-V1 rule families:
+### 11.6 Initial SAST Rule Families
+Required V1 rule families:
 - command injection
 - eval/exec injection
 - SQL injection
 - path traversal
 - weak crypto or weak hash use
-- unsafe deserialization if practical
-- SSRF-like outbound request flow if practical
 
-### 11.6 Source Examples
+Stretch goals, not required for V1 acceptance:
+- unsafe deserialization
+- SSRF-like outbound request flow
+
+### 11.7 Source Examples
 Possible source types:
 - input()
 - command line args
-- request args
-- request.form
-- request.json
+- request args for explicitly modeled frameworks only
+- request.form for explicitly modeled frameworks only
+- request.json for explicitly modeled frameworks only
 - environment input if modeled
 - file reads only if explicitly marked as untrusted in rules
 
-### 11.7 Sink Examples
+### 11.8 Sink Examples
 Possible sink types:
 - os.system
 - subprocess shell execution
@@ -570,28 +750,30 @@ Possible sink types:
 - dangerous deserialization calls
 - outbound URL fetch calls for SSRF-like rules
 
-### 11.8 Sanitizer Examples
+### 11.9 Sanitizer Examples
 Possible sanitizers:
 - allowlist validation wrappers
 - explicit path normalization or checks
-- parameterized query construction if modeled
-- shell escaping if modeled
+- parameterized query construction if explicitly modeled
+- shell escaping if explicitly modeled
 
-### 11.9 SAST Limitations for V1
+Unmodeled sanitizers must not be assumed to be safe.
+
+### 11.10 SAST Limitations for V1
 V1 SAST will not promise:
 - perfect framework understanding
 - inter-repo analysis
-- whole-program soundness
 - complete interfile resolution
 - advanced alias modeling
-- custom metaprogramming support
+- framework-agnostic request object support
+- accurate handling of all Python dynamic features
 
-### 11.10 SAST Acceptance Criteria
+### 11.11 SAST Acceptance Criteria
 The SAST module is considered successful when it:
 - detects intended flows in test fixtures
 - produces traceable findings
-- distinguishes safe from unsafe cases for at least some sanitizer scenarios
-- emits stable output
+- distinguishes safe from unsafe cases in explicitly modeled sanitizer scenarios
+- emits stable output structure
 - integrates cleanly with the core platform
 
 ## 12. DAST Module Specification
@@ -610,6 +792,9 @@ V1 DAST supports:
 - evidence capture
 - profile-based scan depth
 
+V1 DAST is API-first.
+Discovery from OpenAPI, explicit endpoint seeds, and target configuration takes priority over crawler-driven discovery.
+
 ### 12.3 DAST Phases
 The DAST pipeline must be split into two primary phases:
 
@@ -622,19 +807,29 @@ This separation must exist in code architecture even if some simple flows chain 
 Discovery should:
 - accept start URL or API base URL
 - optionally ingest OpenAPI
-- enumerate endpoints and parameters
-- optionally perform lightweight link crawling
+- ingest explicit endpoint seeds from config if present
+- enumerate endpoints and parameters from available inputs
+- optionally perform lightweight same-origin link crawling
 - identify candidate insertion points
 
-### 12.5 Audit Responsibilities
+### 12.5 Crawl Limits for V1
+If crawling is enabled in V1, it must be limited to:
+- same-origin only
+- HTML link and form extraction only
+- shallow depth as defined by config
+- no JavaScript execution
+- no claim of complete route discovery
+
+### 12.6 Audit Responsibilities
 Audit should:
 - run passive response analysis
 - run active checks with payloads
 - record evidence
 - generate findings with confidence/severity
 - respect scan policies and rate limits
+- compare baseline and modified responses where applicable
 
-### 12.6 Initial Passive Checks
+### 12.7 Initial Passive Checks
 Initial passive checks may include:
 - missing security headers
 - overly permissive CORS headers
@@ -643,41 +838,48 @@ Initial passive checks may include:
 - unsafe cookie flags if observable
 - insecure response patterns
 
-### 12.7 Initial Active Checks
+### 12.8 Initial Active Checks
 Initial active checks may include:
 - reflected XSS indicators
 - SQL injection indicators
 - path traversal probes if safely scoped
 - debug endpoint or file exposure probes if carefully scoped
-- simple auth and access-control anomalies only if explicitly supported
+- simple response-based misconfiguration checks
 
-### 12.8 Auth Model
+A reflected substring alone is not sufficient for a high-confidence XSS finding.
+An error message alone is not sufficient for a high-confidence SQL injection finding.
+Where practical, active checks should compare baseline and modified responses.
+
+### 12.9 Auth Model
 V1 auth support:
 - static headers
 - bearer token
 - cookie persistence
-- simple auth hooks for future expansion
+- simple reauth hooks for future expansion
 
 V1 will not claim:
 - arbitrary SSO
 - MFA navigation
 - fully automatic login generation
 - deep browser state emulation
+- authorization or multi-role testing
 
-### 12.9 DAST Limitations for V1
+### 12.10 DAST Limitations for V1
 V1 DAST will not promise:
 - complete SPA discovery
 - deep JavaScript execution support
 - business logic vulnerability discovery
 - reliable blind/OAST coverage
 - full browser automation
+- complete route discovery
+- robust testing of undocumented multi-step workflows
 
-### 12.10 DAST Acceptance Criteria
+### 12.11 DAST Acceptance Criteria
 The DAST module is considered successful when it:
 - can scan a simple target end to end
 - separates discovery from audit in architecture
 - supports at least one authenticated path
-- emits structured evidence
+- emits structured HTTP evidence
 - integrates cleanly with the core platform
 
 ## 13. Configuration Specification
@@ -690,18 +892,24 @@ A single config file should support:
 - module settings
 - rule/check control
 - suppression settings
+- resource limits
 
 ### 13.2 Example Structure
 Top-level keys:
+- config_version
 - project
 - scan
 - output
 - policies
+- limits
 - sast
 - dast
 - suppressions
 
 ### 13.3 Example Concepts
+
+config_version:
+- config schema version
 
 project:
 - name
@@ -722,6 +930,13 @@ policies:
 - fail_on_severity
 - confidence_threshold
 
+limits:
+- max_findings_per_module
+- max_evidence_bytes
+- max_scan_duration_seconds
+- max_requests_per_minute
+- max_crawl_depth
+
 sast:
 - language
 - max_taint_depth
@@ -732,6 +947,7 @@ sast:
 dast:
 - target_url
 - openapi_path
+- endpoint_seeds
 - auth
 - crawl
 - checks
@@ -739,7 +955,19 @@ dast:
 - timeout
 
 suppressions:
-- list of suppressions by rule, path, endpoint, or fingerprint
+- list of suppressions by fingerprint, rule + path, rule + endpoint, or rule + path glob
+
+### 13.4 Suppression Rules
+Suppressions must:
+- include a justification
+- be applied after findings are generated
+- not suppress scan errors
+
+Suppression precedence:
+1. fingerprint
+2. rule + exact location
+3. rule + exact endpoint
+4. rule + path glob
 
 ## 14. Testing Strategy
 
@@ -767,26 +995,40 @@ Integration tests must verify:
 - combined scan execution
 - unified output generation
 - exit code behavior
+- partial failure behavior
 
 ## 15. Output Requirements
 
 ### 15.1 JSON Output
 JSON output must be:
-- stable
+- stable in structure
 - machine-readable
-- complete
-- deterministic
+- complete for emitted findings
+- deterministically sorted for export
+
+V1 does not guarantee identical DAST runtime observations across repeated live scans.
 
 ### 15.2 SARIF Readiness
 The export layer must be designed so that SAST findings map cleanly to SARIF concepts even if SARIF support starts minimal.
 
-### 15.3 Human Summary
+### 15.3 Evidence Redaction
+Evidence must be redacted before export when necessary.
+
+At minimum:
+- Authorization headers must be masked
+- cookies must be masked
+- obvious bearer/session tokens must be masked
+- large bodies may be truncated
+- response evidence size must respect configured limits
+
+### 15.4 Human Summary
 CLI should print a concise summary:
 - modules run
 - target summary
 - findings by severity
 - output location
 - exit status reason
+- module errors if present
 
 ## 16. Future Module Extension Points
 
@@ -828,13 +1070,14 @@ Always prioritize:
 - typed models
 - fixtures and tests
 - clear boundaries
-- deterministic behavior
+- deterministic export behavior
 
 Avoid:
 - overbuilding
 - premature abstractions not used by v1
 - claiming unsupported features
 - coupling modules to CLI or output logic
+- broadening scope without updating the spec
 
 ## 18. Success Definition for V1
 
@@ -856,7 +1099,7 @@ V1 is successful if:
 - config system
 - JSON output
 - CLI
-- Python SAST with taint traces
+- Python SAST with bounded taint traces
 - HTTP/API-first DAST with discovery and audit separation
 - tests
 - documentation
