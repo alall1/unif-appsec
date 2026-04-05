@@ -1,0 +1,119 @@
+[
+  {
+    "schema_version": "1",
+    "finding_id": "00000000-0000-4000-8000-000000000001",
+    "fingerprint": "fp1:0000000000000000000000000000000000000000000000000000000000000000",
+    "engine": "sast",
+    "module": "python_sast",
+    "rule_id": "sast.python.command_injection.subprocess_shell",
+    "title": "Command injection risk (subprocess with shell=True)",
+    "severity": "high",
+    "confidence": "medium",
+    "category": "command_injection",
+    "status": "open",
+    "location_type": "code",
+    "evidence_type": "code_trace",
+    "created_at": "2026-04-04T12:00:00Z",
+    "suppressed": false,
+    "description": "Untrusted data may reach a shell through subprocess APIs when shell=True. V1 models only explicit sources and intrafile calls; inter-file and framework request objects are not automatic sources.",
+    "references": ["https://cwe.mitre.org/data/definitions/78.html"],
+    "tags": ["python", "taint", "command_injection"],
+    "correlation": {
+      "cwe": "78",
+      "sink_type": "subprocess.run",
+      "file_path": "example/vulnerable.py",
+      "function_name": "vulnerable"
+    },
+    "locations": [
+      {
+        "file_path": "example/vulnerable.py",
+        "start_line": 6,
+        "end_line": 6,
+        "start_col": 5,
+        "end_col": 40,
+        "function_name": "vulnerable"
+      }
+    ],
+    "sast_evidence": {
+      "code_snippet": "subprocess.run(sys.argv[1], shell=True)",
+      "matched_sink": "subprocess.run",
+      "matched_source": "Source (attribute)",
+      "trace_summary": "Source (attribute) -> Assignment -> Sink (sast.python.command_injection.subprocess_shell)"
+    },
+    "trace": [
+      {
+        "step_index": 0,
+        "kind": "source",
+        "label": "Source (attribute)",
+        "file_path": "example/vulnerable.py",
+        "line": 5,
+        "column": 11,
+        "symbol": "sys.argv",
+        "note": null
+      },
+      {
+        "step_index": 1,
+        "kind": "propagation",
+        "label": "Assignment",
+        "file_path": "example/vulnerable.py",
+        "line": 5,
+        "column": 5,
+        "symbol": "user",
+        "note": null
+      },
+      {
+        "step_index": 2,
+        "kind": "sink",
+        "label": "Sink (sast.python.command_injection.subprocess_shell)",
+        "file_path": "example/vulnerable.py",
+        "line": 6,
+        "column": 5,
+        "symbol": "subprocess.run",
+        "note": null
+      }
+    ]
+  },
+  {
+    "schema_version": "1",
+    "finding_id": "00000000-0000-4000-8000-000000000002",
+    "fingerprint": "fp1:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "engine": "sast",
+    "module": "python_sast",
+    "rule_id": "sast.python.crypto.weak_hash_md5_sha1",
+    "title": "Weak hash primitive (MD5 or SHA-1)",
+    "severity": "medium",
+    "confidence": "high",
+    "category": "weak_cryptography",
+    "status": "open",
+    "location_type": "code",
+    "evidence_type": "code_match",
+    "created_at": "2026-04-04T12:00:00Z",
+    "suppressed": false,
+    "description": "hashlib.md5 / hashlib.sha1 is flagged for security-sensitive contexts. This is a static pattern match; V1 does not classify benign uses (e.g., non-crypto checksums).",
+    "references": ["https://cwe.mitre.org/data/definitions/327.html"],
+    "tags": ["python", "crypto", "pattern"],
+    "correlation": {
+      "cwe": "327",
+      "sink_type": "hashlib.md5",
+      "file_path": "example/weak.py",
+      "function_name": "vulnerable"
+    },
+    "locations": [
+      {
+        "file_path": "example/weak.py",
+        "start_line": 5,
+        "end_line": 5,
+        "start_col": 5,
+        "end_col": 20,
+        "function_name": "vulnerable"
+      }
+    ],
+    "sast_evidence": {
+      "code_snippet": "hashlib.md5(b\"data\")",
+      "matched_sink": "hashlib.md5",
+      "matched_source": null,
+      "trace_summary": "Sink-only rule match"
+    },
+    "trace": null
+  }
+]

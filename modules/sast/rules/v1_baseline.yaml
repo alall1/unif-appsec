@@ -1,0 +1,180 @@
+schema_version: "1"
+rules:
+  - id: sast.python.command_injection.subprocess_shell
+    analysis: taint
+    title: Command injection risk (subprocess with shell=True)
+    message: >
+      Untrusted data may reach a shell through subprocess APIs when shell=True.
+      V1 models only explicit sources and intrafile calls; inter-file and framework request objects are not automatic sources.
+    severity: high
+    confidence: medium
+    category: command_injection
+    language: python
+    cwe: "78"
+    references:
+      - https://cwe.mitre.org/data/definitions/78.html
+    tags:
+      - python
+      - taint
+      - command_injection
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: subprocess_shell }
+    sanitizers:
+      - { type: qualified_call, qname: shlex.quote }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.command_injection.os_system
+    analysis: taint
+    title: Command injection risk (os.system)
+    message: Untrusted data may reach os.system, which invokes a shell on many platforms.
+    severity: high
+    confidence: medium
+    category: command_injection
+    language: python
+    cwe: "78"
+    references:
+      - https://cwe.mitre.org/data/definitions/78.html
+    tags:
+      - python
+      - taint
+      - command_injection
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: os_system }
+    sanitizers:
+      - { type: qualified_call, qname: shlex.quote }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.eval_exec.unsafe_eval
+    analysis: taint
+    title: Arbitrary code execution (eval)
+    message: Untrusted data may flow into eval(), enabling arbitrary code execution.
+    severity: critical
+    confidence: medium
+    category: eval_injection
+    language: python
+    cwe: "94"
+    references:
+      - https://cwe.mitre.org/data/definitions/94.html
+    tags:
+      - python
+      - taint
+      - eval
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: eval_call }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.eval_exec.unsafe_exec
+    analysis: taint
+    title: Arbitrary code execution (exec)
+    message: Untrusted data may flow into exec(), enabling arbitrary code execution.
+    severity: critical
+    confidence: medium
+    category: exec_injection
+    language: python
+    cwe: "94"
+    references:
+      - https://cwe.mitre.org/data/definitions/94.html
+    tags:
+      - python
+      - taint
+      - exec
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: exec_call }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.sql_injection.string_execute
+    analysis: taint
+    title: SQL injection (string passed to execute)
+    message: >
+      Untrusted data may reach a single-argument cursor.execute() call. Parameterized execute (second argument tuple/list)
+      is treated as a modeled safe pattern for V1 only at this sink shape.
+    severity: high
+    confidence: medium
+    category: sql_injection
+    language: python
+    cwe: "89"
+    references:
+      - https://cwe.mitre.org/data/definitions/89.html
+    tags:
+      - python
+      - taint
+      - sql
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: sql_execute }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.path_traversal.open_path
+    analysis: taint
+    title: Path traversal risk (open with tainted path)
+    message: Untrusted data may control the file path passed to open().
+    severity: medium
+    confidence: medium
+    category: path_traversal
+    language: python
+    cwe: "22"
+    references:
+      - https://cwe.mitre.org/data/definitions/22.html
+    tags:
+      - python
+      - taint
+      - path_traversal
+    sources:
+      - { type: call_name, name: input }
+      - { type: attribute, base: sys, attr: argv }
+      - { type: sys_argv_subscript }
+      - { type: qualified_call, qname: os.getenv }
+    sinks:
+      - { type: open_path }
+    propagators:
+      - { type: call_name, names: [str, repr] }
+
+  - id: sast.python.crypto.weak_hash_md5_sha1
+    analysis: sink_only
+    title: Weak hash primitive (MD5 or SHA-1)
+    message: >
+      hashlib.md5 / hashlib.sha1 is flagged for security-sensitive contexts. This is a static pattern match;
+      V1 does not classify benign uses (e.g., non-crypto checksums).
+    severity: medium
+    confidence: high
+    category: weak_cryptography
+    language: python
+    cwe: "327"
+    references:
+      - https://cwe.mitre.org/data/definitions/327.html
+    tags:
+      - python
+      - crypto
+      - pattern
+    sources: []
+    sinks:
+      - { type: weak_hash_md5_sha1 }

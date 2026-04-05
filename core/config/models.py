@@ -129,8 +129,19 @@ class ResolvedConfig(BaseModel):
             raise ValueError("suppressions must be a list")
         out: list[Any] = []
         for item in v:
+            if isinstance(
+                item,
+                (
+                    SuppressionFingerprint,
+                    SuppressionRuleLocation,
+                    SuppressionRuleEndpoint,
+                    SuppressionRulePathGlob,
+                ),
+            ):
+                out.append(item)
+                continue
             if not isinstance(item, dict):
-                raise ValueError("each suppression must be an object")
+                raise ValueError("each suppression must be an object or a typed suppression model")
             kind = item.get("kind")
             if kind == "fingerprint":
                 out.append(SuppressionFingerprint.model_validate(item))

@@ -1,0 +1,2 @@
+[console_scripts]
+appsec = apps.cli.main:main
