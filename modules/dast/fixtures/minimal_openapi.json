@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.0",
+  "servers": [{ "url": "https://api.example.test/v1" }],
+  "paths": {
+    "/items/{itemId}": {
+      "get": {
+        "parameters": [
+          { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "q", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "ok" } }
+      }
+    }
+  }
+}

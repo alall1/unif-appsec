@@ -1,0 +1,71 @@
+[
+  {
+    "schema_version": "1",
+    "finding_id": "00000000-0000-4000-8000-000000000001",
+    "fingerprint": "fp1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "engine": "dast",
+    "module": "http_dast",
+    "rule_id": "dast.passive.missing_security_headers",
+    "title": "Missing recommended HTTP security headers",
+    "severity": "low",
+    "confidence": "medium",
+    "category": "misconfiguration",
+    "status": "open",
+    "location_type": "http",
+    "evidence_type": "http_exchange",
+    "created_at": "2026-04-05T12:00:00Z",
+    "suppressed": false,
+    "description": "Response omitted common security headers that reduce browser-level attack surface.",
+    "locations": [
+      {
+        "url": "https://app.example.test/",
+        "method": "GET",
+        "parameter": null,
+        "endpoint_signature": null
+      }
+    ],
+    "dast_evidence": {
+      "request_summary": "GET https://app.example.test/",
+      "response_summary": "HTTP 200 without listed headers",
+      "observed_behavior": "Missing: X-Content-Type-Options, Content-Security-Policy, Strict-Transport-Security, Referrer-Policy",
+      "response_markers": [
+        "X-Content-Type-Options",
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "Referrer-Policy"
+      ]
+    }
+  },
+  {
+    "schema_version": "1",
+    "finding_id": "00000000-0000-4000-8000-000000000002",
+    "fingerprint": "fp1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "engine": "dast",
+    "module": "http_dast",
+    "rule_id": "dast.active.reflected_xss",
+    "title": "Reflected input suggests possible XSS (context-dependent)",
+    "severity": "low",
+    "confidence": "low",
+    "category": "injection",
+    "status": "open",
+    "location_type": "http",
+    "evidence_type": "http_exchange",
+    "created_at": "2026-04-05T12:00:05Z",
+    "suppressed": false,
+    "subcategory": "xss",
+    "locations": [
+      {
+        "url": "https://app.example.test/search?q=unifxss_deadbeef",
+        "method": "GET",
+        "parameter": "q",
+        "endpoint_signature": null
+      }
+    ],
+    "dast_evidence": {
+      "matched_payload": "unifxss_deadbeef",
+      "observed_behavior": "Reflection markers: plain_text_reflection",
+      "response_markers": ["plain_text_reflection"],
+      "baseline_comparison": "baseline_len=120 probe_len=140 baseline_marker_reflected=false context_score_probe=1 context_score_baseline=0"
+    }
+  }
+]

@@ -25,7 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     scan = sub.add_parser("scan", help="Run security scan modules")
-    scan.add_argument("target", nargs="?", default=None, help="Filesystem target path (SAST)")
+    scan.add_argument(
+        "target",
+        nargs="?",
+        default=None,
+        help="Filesystem path for SAST, or http(s) URL for DAST if --target-url is not set",
+    )
 
     mod = scan.add_mutually_exclusive_group()
     mod.add_argument("--sast", action="store_const", const="sast", dest="module_choice", help="Run SAST module only")
@@ -88,17 +93,44 @@ def _cli_overlay_from_args(args: argparse.Namespace) -> dict:
 
 
 def _build_scan_target(args: argparse.Namespace) -> ScanTarget:
-    path = Path(args.target).resolve() if args.target else None
+    raw = args.target
+    path: Path | None = None
+    url = args.target_url
+    if raw:
+        if raw.startswith(("http://", "https://")):
+            if url is None:
+                url = raw
+        else:
+            path = Path(raw).resolve()
     openapi_path = Path(args.openapi).resolve() if args.openapi else None
-    return ScanTarget(path=path, url=args.target_url, openapi_path=openapi_path)
+    return ScanTarget(path=path, url=url, openapi_path=openapi_path)
 
 
-def _print_human_summary(result: AggregateScanResult, *, output_path: Path, exit_code: int, policies) -> None:
+def _target_summary_line(target: ScanTarget) -> str:
+    parts: list[str] = []
+    if target.path is not None:
+        parts.append(f"path={target.path}")
+    if target.url:
+        parts.append(f"url={target.url}")
+    if target.openapi_path is not None:
+        parts.append(f"openapi={target.openapi_path}")
+    return "; ".join(parts) if parts else "(none)"
+
+
+def _print_human_summary(
+    result: AggregateScanResult,
+    *,
+    target: ScanTarget,
+    output_path: Path,
+    exit_code: int,
+    policies,
+) -> None:
     active = [f for f in result.findings if not f.suppressed]
     sev = Counter(f.severity for f in active)
     mods = ", ".join(m.module for m in result.module_results) or "(none)"
 
     print("Scan summary", file=sys.stderr)
+    print(f"  Target: {_target_summary_line(target)}", file=sys.stderr)
     print(f"  Modules run: {mods}", file=sys.stderr)
     print(f"  Active findings: {len(active)} (total rows: {len(result.findings)})", file=sys.stderr)
     for level in ("critical", "high", "medium", "low", "info"):
@@ -151,5 +183,11 @@ def execute_scan(argv: Sequence[str] | None, registry: PluginRegistry) -> int:
         print(f"Failed to write output: {exc}", file=sys.stderr)
         return 2
 
-    _print_human_summary(result, output_path=out_path, exit_code=exit_code, policies=config.policies)
+    _print_human_summary(
+        result,
+        target=target,
+        output_path=out_path,
+        exit_code=exit_code,
+        policies=config.policies,
+    )
     return exit_code

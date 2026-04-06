@@ -111,6 +111,10 @@ class ResolvedConfig(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     config_version: str
+    scan_modules_key_present: bool = Field(
+        default=False,
+        description="True when merged scan config included a modules key (even if empty).",
+    )
     project: ProjectConfig = Field(default_factory=ProjectConfig)
     scan: ScanConfig
     output: OutputConfig = Field(default_factory=OutputConfig)

@@ -6,9 +6,15 @@ from pathlib import Path
 from core.findings.fingerprints import compute_fingerprint
 from core.findings.models import Finding
 
+_VALID_SEVERITY = frozenset({"info", "low", "medium", "high", "critical"})
+_VALID_CONFIDENCE = frozenset({"low", "medium", "high"})
+
 
 def normalize_finding(finding: Finding, scan_root: Path) -> Finding:
-    """Assign fingerprint per §9.11; ensure finding_id exists."""
+    """Coerce severity/confidence, assign fingerprint per §9.11, ensure finding_id exists."""
+    sev = finding.severity if finding.severity in _VALID_SEVERITY else "medium"
+    conf = finding.confidence if finding.confidence in _VALID_CONFIDENCE else "medium"
+    finding = finding.model_copy(update={"severity": sev, "confidence": conf})
     fp = compute_fingerprint(finding, scan_root)
     fid = finding.finding_id or str(uuid.uuid4())
     return finding.model_copy(update={"fingerprint": fp, "finding_id": fid})

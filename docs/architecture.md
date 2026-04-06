@@ -29,7 +29,7 @@ Core platform code must not embed SAST or DAST analysis logic. Modules must not 
 1. CLI receives `appsec scan [target] [flags]`.
 2. Config is loaded, validated, and merged: start from profile defaults, overlay the full config document (including `sast` / `dast`), then overlay CLI flags for corresponding settings (see master spec §8.5).
 3. Targets are validated (SAST path rules; DAST URL, scheme, redirect, and scope rules).
-4. Modules are selected (`--sast`, `--dast`, `--all`, or config-driven).
+4. Modules are selected (`--sast`, `--dast`, `--all`, or `scan.modules` in config). If `scan.modules` is **omitted** from the merged configuration document, the planner infers modules from the effective target: filesystem path → SAST; effective DAST URL (CLI `--target-url` or `dast.target_url`) → DAST; both → run both. If `scan.modules` is **present** in the merged document (including an explicit empty list `[]`), that list is used as-is—no inference.
 5. Profile is resolved (`fast` | `balanced` | `deep`).
 6. Each selected module runs: `validate_target` then `scan` → `ModuleScanResult`.
 7. Findings are aggregated; resource limits (max findings per module, evidence bytes, etc.) are applied as specified.

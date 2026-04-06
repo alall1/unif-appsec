@@ -1,0 +1,30 @@
+# Fragment to merge under your project config (see docs/config_reference.md).
+dast:
+  target_url: "https://app.example.test/"
+  base_url: "https://app.example.test/api/"
+  openapi_path: "modules/dast/fixtures/minimal_openapi.json"
+  allowed_schemes: ["https"]
+  follow_redirects: true
+  allow_cross_origin: false
+  crawl:
+    enabled: true
+    max_depth: 2
+  endpoint_seeds:
+    - method: GET
+      path: "/health"
+      parameters:
+        - name: verbose
+          in: query
+  auth:
+    headers:
+      X-Scan-Token: "replace-me"
+    bearer_token: "replace-me"
+    cookies: {}
+    reauth_hook: null
+  checks:
+    passive:
+      enabled: true
+    active:
+      enabled: true
+    disabled: []
+  timeout: 20.0

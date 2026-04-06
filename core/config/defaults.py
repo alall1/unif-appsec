@@ -9,7 +9,6 @@ def _base_profile_shell() -> dict[str, Any]:
     return {
         "config_version": "1",
         "scan": {
-            "modules": [],
             "profile": "balanced",
             "include_paths": [],
             "exclude_paths": [],

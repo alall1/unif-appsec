@@ -52,6 +52,7 @@ def _coerce_resolved(merged: dict[str, Any]) -> ResolvedConfig:
         raise ValueError(f"Unsupported config_version: {version!r} (only '1' is supported)")
 
     scan_raw = merged.get("scan") or {}
+    scan_modules_key_present = "modules" in scan_raw
     profile_name = str(scan_raw.get("profile", "balanced"))
     if profile_name not in PROFILE_NAMES:
         raise ValueError(f"scan.profile must be one of {list(PROFILE_NAMES)}, got {profile_name!r}")
@@ -83,6 +84,7 @@ def _coerce_resolved(merged: dict[str, Any]) -> ResolvedConfig:
 
     return ResolvedConfig(
         config_version=str(version),
+        scan_modules_key_present=scan_modules_key_present,
         project=project,
         scan=scan,
         output=output,

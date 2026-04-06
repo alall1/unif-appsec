@@ -57,12 +57,15 @@ def run_scan(
     aggregate = AggregateScanResult()
     has_module_errors = False
 
-    modules = planned_module_names(config)
+    modules = planned_module_names(config, target)
     if not modules:
         aggregate.scan_errors.append(
             StructuredDiagnostic(
                 code="no_modules_selected",
-                message="No scan modules configured; set scan.modules or use CLI flags.",
+                message=(
+                    "No scan modules selected: set scan.modules, use --sast/--dast/--all, "
+                    "or provide a filesystem path and/or DAST target URL for auto-selection."
+                ),
             )
         )
         exit_code = compute_exit_code(
