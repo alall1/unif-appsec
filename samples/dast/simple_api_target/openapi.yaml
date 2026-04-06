@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Simple API Target
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5105
+paths:
+  /health:
+    get:
+      summary: Health endpoint
+      responses:
+        "200":
+          description: OK
+  /items:
+    get:
+      summary: List items
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /reflect:
+    get:
+      summary: Reflect query value
+      parameters:
+        - in: query
+          name: value
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /sql:
+    get:
+      summary: Simulated SQL-like behavior
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Simulated DB error
