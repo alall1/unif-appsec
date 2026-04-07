@@ -1,1 +1,0 @@
-{"scan_result_schema_version": "1.0.0", "findings": [], "module_results": [{"module": "python_sast", "warnings": [], "errors": [], "metrics": {"duration_ms": 7.411125116050243, "files_analyzed": 1}}]}

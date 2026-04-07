@@ -41,6 +41,16 @@ The platform should feel like a real security tool:
 
 The priority is architectural credibility and clean design, not maximum scanner coverage.
 
+### 1.5 V2 Scope Direction (Additive)
+V2 extends the existing platform architecture with:
+- SCA module (narrow dependency vulnerability scanning scope)
+- IaC module (narrow Terraform static misconfiguration scope)
+
+V2 remains additive to V1:
+- V1 guarantees in this document remain normative unless a section explicitly states a V2 extension
+- existing V1 module behavior and core semantics are preserved
+- IAST is explicitly deferred to V3
+
 ## 2. V1 Scope
 
 ### 2.1 In Scope
@@ -85,6 +95,13 @@ The DAST module is responsible for:
 - structured evidence capture
 - generation of normalized findings through the shared schema
 
+### 2.5 V2 Additive Module Scope
+V2 adds:
+- SCA module
+- IaC module
+
+V1 SAST and DAST scope in Sections 2.3 and 2.4 is unchanged from V1.
+
 ## 3. Explicit Non-Goals for V1
 
 The following are out of scope for V1:
@@ -105,6 +122,10 @@ The following are out of scope for V1:
 - business-logic vulnerability discovery
 - blind/OAST infrastructure
 - arbitrary JavaScript execution during DAST
+
+For V2 planning and implementation boundaries:
+- IAST is still out of scope and deferred to V3
+- SCA and IaC are added in constrained form only (see Section 20)
 
 ## 4. Supported Targets in V1
 
@@ -204,6 +225,8 @@ The platform consists of:
 6. Export Layer
 7. SAST Module
 8. DAST Module
+9. SCA Module (V2 additive)
+10. IaC Module (V2 additive)
 
 ### 6.2 Execution Model
 A scan request flows through the following stages:
@@ -444,6 +467,23 @@ The schema consists of:
 
 This keeps V1 usable for SAST and DAST while preserving extension points for future SCA, IaC, and IAST support.
 
+### 9.2.1 Typed Extension Objects (V2 additive clarification)
+Typed extension objects remain the model for module-specific details.
+
+V1 active usage remains unchanged:
+- SAST findings may include `sast_evidence` and `trace`
+- DAST findings may include `dast_evidence`
+
+V2 adds reserved typed detail objects for new modules:
+- `sca_details` for SCA-specific structured fields
+- `iac_details` for IaC-specific structured fields
+
+These objects are optional and module-specific. Consumers must ignore unknown keys within typed extension objects.
+
+For V2 conformance:
+- `sca_details` and `iac_details` must remain nested typed extension objects and must not move module-specific keys into new required top-level finding fields.
+- V2 implementations must update runtime finding models and repository schemas in lockstep when activating these objects.
+
 ### 9.3 Required Core Finding Fields
 Each finding must contain:
 
@@ -580,6 +620,25 @@ Possible fields:
 - observed_behavior
 - response_markers
 - baseline_comparison
+
+#### SCA Evidence (V2 additive)
+Possible fields:
+- source_file (manifest/lockfile path used for the finding)
+- package_identifier (ecosystem + package + version tuple)
+- advisory_id
+- advisory_source
+- fixed_versions
+- dependency_path (when available from lockfile resolution)
+
+#### IaC Evidence (V2 additive)
+Possible fields:
+- resource_type
+- resource_name
+- provider
+- config_path
+- attribute_path
+- expected_vs_actual
+- check_inputs
 
 ### 9.7 Trace Model
 For SAST and future IAST, trace must support ordered steps.
@@ -1067,6 +1126,28 @@ Evaluation rule:
 - When attributing `suppression_reason` (or equivalent), use the **highest-priority** matching rule from the list above (fingerprint beats rule+location, and so on).
 - Within the **same** precedence tier, if multiple rules match, implementations should use the **first** matching rule in config file order for attribution.
 
+### 13.5 V2 Suppression Match Shapes for Dependency and Resource Findings
+V2 does not change suppression precedence from Section 13.4.
+
+For V2 module findings, suppression matching must support these additional exact-match shapes:
+- rule + dependency coordinate:
+  - required keys:
+    - `rule_id`
+    - `ecosystem`
+    - `package_name`
+    - `package_version`
+- rule + resource address:
+  - required keys:
+    - `rule_id`
+    - `provider`
+    - `resource_address`
+
+Precedence mapping for attribution:
+- `rule + dependency coordinate` is in the same precedence tier as `rule + exact location`
+- `rule + resource address` is in the same precedence tier as `rule + exact location`
+
+V2 module suppressions must still require justification and must not suppress scan/module errors.
+
 ## 14. Testing Strategy
 
 ### 14.1 Unit Tests
@@ -1141,6 +1222,8 @@ The architecture must reserve room for:
 - trace enrichment
 - sink observation
 
+IAST remains deferred to V3. V2 does not add IAST runtime collection or correlation requirements.
+
 ### 16.2 SCA
 The architecture must reserve room for:
 - dependency objects
@@ -1149,12 +1232,16 @@ The architecture must reserve room for:
 - vulnerability references
 - remediation suggestions
 
+V2 activates a constrained subset of this extension point as defined in Section 20.1.
+
 ### 16.3 IaC
 The architecture must reserve room for:
 - resource findings
 - resource graph relationships
 - policy identifiers
 - infrastructure locations
+
+V2 activates a constrained subset of this extension point as defined in Section 20.2.
 
 ## 17. Implementation Guidance
 
@@ -1217,9 +1304,226 @@ V1 is successful if:
 
 ### 19.3 Future Work
 - IAST-lite
-- SCA
-- IaC
 - richer auth handling
 - more languages
 - better correlation
 - richer reporting
+
+### 19.4 Frozen V1 Contract Surface (Normative)
+The following V1 contracts are frozen and must not be changed by V2 additive work unless this specification explicitly declares a breaking change section:
+- plugin contract shape in Section 10.1
+- `ModuleScanResult` shape in Sections 9.10.1 and 10.2
+- findings-vs-errors separation in Section 9.9
+- exit code semantics in Section 8.8 and partial-failure behavior in Section 6.3
+- fingerprint algorithm and canonical material in Section 9.11
+- exported findings deterministic ordering in Section 9.12
+- suppression precedence and attribution behavior in Section 13.4
+- top-level scan result envelope keys in Section 9.10.3
+
+Guardrail for implementation and agent-assisted edits:
+- V2 changes must be additive and module-scoped.
+- Do not rename or repurpose V1 fields, statuses, enums, or normative semantics.
+- Do not silently refactor V1 core behavior under the guise of extensibility.
+
+## 20. V2 Additive Scope (SCA and IaC Only)
+
+This section defines V2 additions only. Unless explicitly stated here, V1 behavior elsewhere in this specification is unchanged from V1.
+
+### 20.1 SCA Module Specification (V2)
+
+#### 20.1.1 Scope
+SCA in V2 is dependency/package vulnerability scanning with manifest/lockfile-first behavior.
+
+V2 SCA priority:
+- Python ecosystem first
+- requirements and lockfile-oriented inputs first
+- deterministic, rule/advisory-driven finding generation through the shared schema
+
+#### 20.1.2 Responsibilities
+The SCA module is responsible for:
+- locating supported dependency manifests/lockfiles in scope
+- parsing supported files and extracting normalized package coordinates
+- matching extracted packages against configured/bundled vulnerability intelligence
+- emitting normalized findings with `location_type=dependency`
+- attaching structured SCA evidence and optional `sca_details`
+- returning module warnings/errors/metrics via `ModuleScanResult` (Section 9.10.1)
+
+#### 20.1.3 V2 Boundaries and Non-Goals
+SCA in V2 does not promise:
+- reachability analysis
+- exploitability analysis
+- container or image scanning
+- runtime package inventory from live systems
+- broad multi-ecosystem parity
+- full transitive graph reasoning beyond what is directly available from supported lockfile/manifests
+
+#### 20.1.4 Inputs and Targeting
+SCA operates on repository filesystem targets.
+
+V2 supported input classes:
+- Python dependency manifests/lockfiles with a narrow fixed baseline:
+  - `requirements.txt`
+  - `poetry.lock`
+  - `Pipfile.lock`
+
+V2 does not require support for additional ecosystems or Python packaging file variants beyond the fixed baseline above.
+
+If no supported SCA input is found, the module should return structured warnings and no findings rather than failing the full scan, unless module configuration explicitly requires hard failure.
+
+#### 20.1.5 SCA Finding Semantics
+SCA findings use the shared core fields (Section 9.3) and must preserve:
+- `status` semantics (`open` or `suppressed` only)
+- suppression behavior and precedence from Section 13.4
+- scan error separation from findings (Section 9.9)
+
+Expected finding conventions for V2 SCA:
+- `engine`: `sca`
+- `location_type`: `dependency`
+- `evidence_type`: typically `metadata_only` unless richer evidence is available
+
+`sca_details` (optional typed extension object) may include:
+- ecosystem
+- package_name
+- package_version
+- advisory_id
+- advisory_source
+- advisory_url
+- fixed_versions
+- cvss (string or structured score object, implementation-defined)
+- cwe_ids
+- dependency_scope (direct/transitive when known)
+
+When `sca_details` is present in V2 findings, the following fields are required at minimum:
+- ecosystem
+- package_name
+- package_version
+- advisory_id
+- advisory_source
+
+For schema stability in V2:
+- `cvss` must be represented as a string in V2 outputs (structured score-object variants are deferred).
+
+#### 20.1.6 SCA Metrics (ModuleScanResult)
+When applicable, SCA should populate module metrics keys such as:
+- manifests_scanned
+- packages_evaluated
+- advisories_matched
+
+Consumers must ignore unknown metric keys (Section 9.10.2 rule remains unchanged).
+
+### 20.2 IaC Module Specification (V2)
+
+#### 20.2.1 Scope
+IaC in V2 is static misconfiguration scanning for Terraform-first inputs using rule-driven checks.
+
+#### 20.2.2 Responsibilities
+The IaC module is responsible for:
+- collecting supported Terraform files in scope
+- parsing supported Terraform configuration forms required by implemented checks
+- evaluating rule-driven static checks
+- emitting normalized findings with `location_type=resource`
+- attaching structured IaC evidence and optional `iac_details`
+- returning module warnings/errors/metrics via `ModuleScanResult` (Section 9.10.1)
+
+#### 20.2.3 V2 Boundaries and Non-Goals
+IaC in V2 does not promise:
+- live cloud validation against deployed resources
+- graph-heavy cloud reasoning
+- cross-account/cloud inventory collection
+- policy simulation against runtime cloud APIs
+- broad multi-format IaC parity across all IaC dialects
+
+#### 20.2.4 Inputs and Targeting
+IaC operates on repository filesystem targets.
+
+V2 supported input classes:
+- Terraform HCL source files (`.tf`) only
+
+V2 does not require support for Terraform state files, plan files, Terragrunt, or non-Terraform IaC formats.
+
+If no supported IaC files are found, the module should return structured warnings and no findings rather than failing the full scan, unless module configuration explicitly requires hard failure.
+
+#### 20.2.5 IaC Finding Semantics
+IaC findings use the shared core fields (Section 9.3) and must preserve:
+- `status` semantics (`open` or `suppressed` only)
+- suppression behavior and precedence from Section 13.4
+- scan error separation from findings (Section 9.9)
+
+Expected finding conventions for V2 IaC:
+- `engine`: `iac`
+- `location_type`: `resource`
+- `evidence_type`: typically `metadata_only` unless richer evidence is available
+
+`iac_details` (optional typed extension object) may include:
+- provider
+- resource_type
+- resource_name
+- resource_address
+- check_id
+- expected_value
+- observed_value
+- remediation_hint
+
+When `iac_details` is present in V2 findings, the following fields are required at minimum:
+- provider
+- resource_type
+- resource_address
+- check_id
+
+#### 20.2.6 IaC Metrics (ModuleScanResult)
+When applicable, IaC should populate module metrics keys such as:
+- files_scanned
+- resources_evaluated
+- checks_executed
+
+Consumers must ignore unknown metric keys (Section 9.10.2 rule remains unchanged).
+
+### 20.3 Fingerprinting and Suppression Notes for V2 Modules
+V1 fingerprint and suppression semantics remain normative and unchanged.
+
+For SCA and IaC findings in V2:
+- fingerprint generation must continue to follow Section 9.11
+- for `location_type=dependency` and `location_type=resource`, Section 9.11 future-location-key rule is now actively used
+- suppression precedence and attribution remain exactly as defined in Section 13.4
+
+No V2 change reintroduces finding-level error status. Scan and module errors remain separate from findings.
+
+V2 module fingerprints must continue using only Section 9.11 canonical material.
+New typed extension objects (`sca_details`, `iac_details`) must not be added to fingerprint input material.
+
+### 20.5 V2 Evidence and Profile Expectations (Normative Minimums)
+V2 keeps the same platform profiles (`fast`, `balanced`, `deep`) and does not introduce new profile names.
+
+#### 20.5.1 SCA evidence minimum
+Each SCA finding must include enough structured evidence for triage at minimum:
+- source manifest/lockfile path
+- package identifier (ecosystem + package + version)
+- advisory identifier and advisory source
+- fixed version information when known
+
+#### 20.5.2 IaC evidence minimum
+Each IaC finding must include enough structured evidence for triage at minimum:
+- config path and/or resource address
+- failing rule/check identifier
+- expected vs observed value (or equivalent check input summary)
+
+#### 20.5.3 Profile behavior for V2 modules
+V2 profile behavior must remain constrained and deterministic:
+- `fast`:
+  - prioritize minimal runtime and deterministic local feedback
+  - run only baseline parsing/evaluation needed for core findings
+- `balanced`:
+  - default CI profile
+  - run baseline V2 checks with normal evidence capture
+- `deep`:
+  - allow broader coverage within the same fixed V2 scope boundaries
+  - must not imply new ecosystems, new IaC formats, or non-static/runtime analysis modes
+
+### 20.6 Explicit V2 Out-of-Scope
+The following are explicitly out of scope for V2:
+- IAST (deferred to V3)
+- reachability/exploitability analysis for SCA
+- image/container scanning
+- live cloud-state validation for IaC
+- graph-heavy cross-resource cloud reasoning
+- broad parity promises across all package ecosystems or IaC formats
