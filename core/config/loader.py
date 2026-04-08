@@ -93,6 +93,7 @@ def _coerce_resolved(merged: dict[str, Any]) -> ResolvedConfig:
         sast=dict(merged.get("sast") or {}),
         dast=dict(merged.get("dast") or {}),
         sca=dict(merged.get("sca") or {}),
+        iac=dict(merged.get("iac") or {}),
         suppressions=merged.get("suppressions") or [],
     )
 

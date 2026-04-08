@@ -8,7 +8,9 @@ def register_builtin_plugins(registry: PluginRegistry) -> None:
     from modules.dast.plugin import HttpDastPlugin
     from modules.sca.plugin import PythonScaPlugin
     from modules.sast.plugin import PythonSastPlugin
+    from modules.iac.plugin import TerraformIacPlugin
 
     registry.register(PythonSastPlugin())
     registry.register(HttpDastPlugin())
     registry.register(PythonScaPlugin())
+    registry.register(TerraformIacPlugin())

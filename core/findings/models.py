@@ -101,6 +101,40 @@ class ScaDetails(BaseModel):
     dependency_scope: Optional[str] = None
 
 
+class IacEvidence(BaseModel):
+    """IaC structured evidence (V2 additive)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    # Minimal context for triage
+    config_path: Optional[str] = None
+    resource_type: Optional[str] = None
+    resource_name: Optional[str] = None
+    provider: Optional[str] = None
+
+    # Rule/check specific evidence
+    attribute_path: Optional[str] = None
+    expected_vs_actual: Optional[str] = None
+    check_inputs: Optional[dict[str, Any]] = None
+
+
+class IacDetails(BaseModel):
+    """IaC typed extension details (V2 additive)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    provider: str
+    resource_type: str
+    resource_address: str
+    check_id: str
+
+    # Optional, for explainability and structured triage
+    resource_name: Optional[str] = None
+    expected_value: Optional[str] = None
+    observed_value: Optional[str] = None
+    remediation_hint: Optional[str] = None
+
+
 class TraceStep(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -164,8 +198,10 @@ class Finding(BaseModel):
     sast_evidence: Optional[SastEvidence] = None
     dast_evidence: Optional[DastEvidence] = None
     sca_evidence: Optional[ScaEvidence] = None
+    iac_evidence: Optional[IacEvidence] = None
     trace: Optional[list[TraceStep]] = None
     sca_details: Optional[ScaDetails] = None
+    iac_details: Optional[IacDetails] = None
 
     @staticmethod
     def utc_now_rfc3339() -> str:

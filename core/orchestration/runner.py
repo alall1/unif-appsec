@@ -10,7 +10,7 @@ from core.config.models import ResolvedConfig, ScanTarget
 from core.findings.models import Finding, ModuleMetrics, ModuleScanResult, StructuredDiagnostic
 from core.findings.normalize import normalize_finding, prepare_findings_for_export
 from core.logging.setup import get_logger
-from core.orchestration.constants import DAST_MODULE_NAME, SAST_MODULE_NAME, SCA_MODULE_NAME
+from core.orchestration.constants import DAST_MODULE_NAME, IAC_MODULE_NAME, SAST_MODULE_NAME, SCA_MODULE_NAME
 from core.orchestration.exit_code import compute_exit_code, finding_counts_for_fail
 from core.orchestration.planner import planned_module_names
 from core.orchestration.results import AggregateScanResult, ModuleResultSummary
@@ -37,6 +37,8 @@ def _module_config_slice(plugin_name: str, config: ResolvedConfig) -> dict:
         return dict(config.dast)
     if plugin_name == SCA_MODULE_NAME:
         return dict(config.sca)
+    if plugin_name == IAC_MODULE_NAME:
+        return dict(config.iac)
     return {}
 
 

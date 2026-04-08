@@ -5,7 +5,7 @@ from pathlib import Path
 
 from core.config.models import ResolvedConfig, SuppressionEntry
 from core.findings.fingerprints import _canonical_url_for_fingerprint, _posix_relative_safe
-from core.findings.models import CodeLocation, DependencyLocation, Finding, HttpLocation
+from core.findings.models import CodeLocation, DependencyLocation, Finding, HttpLocation, ResourceLocation
 
 
 def _primary_code(f: Finding) -> CodeLocation | None:
@@ -100,12 +100,31 @@ def _match_rule_dependency_coordinate(
     return False
 
 
+def _match_rule_resource_address(
+    rule_id: str,
+    provider: str,
+    resource_address: str,
+    finding: Finding,
+) -> bool:
+    if finding.rule_id != rule_id:
+        return False
+    if finding.location_type != "resource" or not finding.locations:
+        return False
+    for loc in finding.locations:
+        if not isinstance(loc, ResourceLocation):
+            continue
+        return (loc.provider or "") == provider and (loc.resource_id or "") == resource_address
+    return False
+
+
 def _tier(entry: SuppressionEntry) -> int:
     if entry.kind == "fingerprint":
         return 0
     if entry.kind == "rule_location":
         return 1
     if entry.kind == "rule_dependency_coordinate":
+        return 1
+    if entry.kind == "rule_resource_address":
         return 1
     if entry.kind == "rule_endpoint":
         return 2
@@ -141,6 +160,14 @@ def apply_suppressions(findings: list[Finding], config: ResolvedConfig, scan_roo
                     entry.ecosystem,
                     entry.package_name,
                     entry.package_version,
+                    f,
+                )
+                reason = entry.justification
+            elif entry.kind == "rule_resource_address":
+                matched = _match_rule_resource_address(
+                    entry.rule_id,
+                    entry.provider,
+                    entry.resource_address,
                     f,
                 )
                 reason = entry.justification

@@ -125,6 +125,7 @@
     "sast_evidence": { "type": "object" },
     "dast_evidence": { "type": "object" },
     "sca_evidence": { "type": "object" },
+    "iac_evidence": { "type": "object" },
     "sca_details": {
       "type": "object",
       "additionalProperties": true,
@@ -140,6 +141,21 @@
         "cvss": { "type": "string" },
         "cwe_ids": { "type": "array", "items": { "type": "string" } },
         "dependency_scope": { "type": "string" }
+      }
+    },
+    "iac_details": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["provider", "resource_type", "resource_address", "check_id"],
+      "properties": {
+        "provider": { "type": "string" },
+        "resource_type": { "type": "string" },
+        "resource_address": { "type": "string" },
+        "check_id": { "type": "string" },
+        "resource_name": { "type": "string" },
+        "expected_value": { "type": "string" },
+        "observed_value": { "type": "string" },
+        "remediation_hint": { "type": "string" }
       }
     },
     "trace": {

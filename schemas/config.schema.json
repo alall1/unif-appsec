@@ -64,6 +64,7 @@
     "sast": { "type": "object" },
     "dast": { "type": "object" },
     "sca": { "type": "object" },
+    "iac": { "type": "object" },
     "suppressions": {
       "type": "array",
       "items": {
@@ -119,6 +120,17 @@
               "ecosystem": { "type": "string" },
               "package_name": { "type": "string" },
               "package_version": { "type": "string" },
+              "justification": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "rule_id", "provider", "resource_address", "justification"],
+            "properties": {
+              "kind": { "const": "rule_resource_address" },
+              "rule_id": { "type": "string" },
+              "provider": { "type": "string" },
+              "resource_address": { "type": "string" },
               "justification": { "type": "string" }
             }
           }

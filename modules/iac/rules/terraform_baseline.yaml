@@ -1,0 +1,42 @@
+schema_version: "1"
+rules:
+  - id: iac.terraform.aws_security_group.public_ingress
+    title: AWS security group allows public ingress
+    message: Security group ingress exposes ports to a wildcard public CIDR (0.0.0.0/0 or ::/0).
+    severity: high
+    confidence: high
+    category: infrastructure_public_exposure
+    provider: aws
+    resource_type: aws_security_group
+    check: public_ingress_any_wildcard_cidr
+
+  - id: iac.terraform.aws_s3_bucket_public_access_block.not_fully_enabled
+    title: AWS S3 public access block not fully enabled
+    message: S3 public access block settings are missing or not all set to true, leaving the bucket exposed to public access controls.
+    severity: medium
+    confidence: medium
+    category: infrastructure_public_exposure
+    provider: aws
+    resource_type: aws_s3_bucket_public_access_block
+    check: s3_public_access_block_must_be_true
+    required_attributes:
+      block_public_acls: true
+      block_public_policy: true
+      ignore_public_acls: true
+      restrict_public_buckets: true
+    remediation_hint: Enable all four public-access-block attributes (block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets).
+
+  - id: iac.terraform.aws_s3_bucket.server_side_encryption_missing
+    title: AWS S3 bucket missing server-side encryption
+    message: S3 server-side encryption configuration is missing or does not specify an allowed sse_algorithm literal.
+    severity: medium
+    confidence: medium
+    category: data_protection_missing
+    provider: aws
+    resource_type: aws_s3_bucket
+    check: s3_bucket_encryption_required
+    allowed_sse_algorithms:
+      - AES256
+      - aws:kms
+    remediation_hint: Add server_side_encryption_configuration with a rule that sets apply_server_side_encryption_by_default.sse_algorithm to AES256 or aws:kms.
+

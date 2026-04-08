@@ -108,12 +108,25 @@ class SuppressionRuleDependencyCoordinate(BaseModel):
     justification: str
 
 
+class SuppressionRuleResourceAddress(BaseModel):
+    """V2 additive suppression match for IaC findings by (rule, provider, resource_address)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    kind: Literal["rule_resource_address"] = "rule_resource_address"
+    rule_id: str
+    provider: str
+    resource_address: str
+    justification: str
+
+
 SuppressionEntry = (
     SuppressionFingerprint
     | SuppressionRuleLocation
     | SuppressionRuleEndpoint
     | SuppressionRulePathGlob
     | SuppressionRuleDependencyCoordinate
+    | SuppressionRuleResourceAddress
 )
 
 
@@ -135,6 +148,7 @@ class ResolvedConfig(BaseModel):
     sast: dict[str, Any] = Field(default_factory=dict)
     dast: dict[str, Any] = Field(default_factory=dict)
     sca: dict[str, Any] = Field(default_factory=dict)
+    iac: dict[str, Any] = Field(default_factory=dict)
     suppressions: list[SuppressionEntry] = Field(default_factory=list)
 
     @field_validator("suppressions", mode="before")
@@ -154,6 +168,7 @@ class ResolvedConfig(BaseModel):
                     SuppressionRuleEndpoint,
                     SuppressionRulePathGlob,
                     SuppressionRuleDependencyCoordinate,
+                    SuppressionRuleResourceAddress,
                 ),
             ):
                 out.append(item)
@@ -171,6 +186,8 @@ class ResolvedConfig(BaseModel):
                 out.append(SuppressionRulePathGlob.model_validate(item))
             elif kind == "rule_dependency_coordinate":
                 out.append(SuppressionRuleDependencyCoordinate.model_validate(item))
+            elif kind == "rule_resource_address":
+                out.append(SuppressionRuleResourceAddress.model_validate(item))
             else:
                 raise ValueError(f"Unknown suppression kind: {kind!r}")
         return out
