@@ -17,7 +17,7 @@ appsec scan [target] [flags]
 
 | Flag | Purpose |
 |------|---------|
-| `--sast` / `--dast` / `--all` | Module selection |
+| `--sast` / `--dast` / `--sca` / `--iac` / `--all` | Module selection |
 | `--config` | Path to config file |
 | `--profile` | `fast` \| `balanced` \| `deep` |
 | `--format` | Output format selection |

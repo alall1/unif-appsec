@@ -48,7 +48,7 @@ def _trim_strings(obj: Any, budget: int) -> tuple[Any, int]:
 
 def enforce_max_evidence_bytes_on_dict(data: dict[str, Any], limits: LimitsConfig) -> dict[str, Any]:
     """Cap evidence-heavy subtrees to limits.max_evidence_bytes per finding."""
-    keys = ("sast_evidence", "dast_evidence", "iac_evidence", "trace", "metadata")
+    keys = ("sast_evidence", "dast_evidence", "sca_evidence", "iac_evidence", "trace", "metadata")
     out = dict(data)
     for k in keys:
         if k not in out or out[k] is None:

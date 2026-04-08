@@ -2,7 +2,7 @@
 
 This directory tree implements the **core platform** described in `docs/master_spec.md`: CLI, configuration (with profile and precedence rules), plugin registry, scan orchestration, normalized findings, fingerprints, suppressions, resource and evidence limits, redaction hooks, JSON export, logging, and exit codes.
 
-Real **SAST** and **DAST** analysis live in separate modules that register as plugins; they are not part of this core package.
+Real **SAST**, **DAST**, **SCA**, and **IaC** analysis live in separate modules that register as plugins; they are not part of this core package.
 
 ## Install
 
@@ -29,7 +29,9 @@ python3 -m pip install -e ".[dev]"
 
 ## Registering plugins
 
-The default `appsec` console script uses an **empty** registry. Integrations should call `registry.register(MyPlugin())` before running a scan, or use `apps.cli.main.run_with_registry(registry)` from a custom entrypoint.
+The default `appsec` console script registers all built-in modules (`python_sast`, `http_dast`, `python_sca`, `terraform_iac`) via `core.plugins.builtin.register_builtin_plugins`.
+
+Custom integrations can still build their own `PluginRegistry` and pass it to `apps.cli.main.run_with_registry(registry)`.
 
 ```python
 from apps.cli.commands import execute_scan

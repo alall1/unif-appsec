@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from core.config.models import ResolvedConfig, ScanTarget
-from core.orchestration.constants import DAST_MODULE_NAME, SAST_MODULE_NAME
+from core.orchestration.constants import (
+    DAST_MODULE_NAME,
+    IAC_MODULE_NAME,
+    SAST_MODULE_NAME,
+    SCA_MODULE_NAME,
+)
 
 
 def _dast_target_url_resolved(target: ScanTarget, config: ResolvedConfig) -> str | None:
@@ -19,10 +24,11 @@ def inferred_module_names(target: ScanTarget, config: ResolvedConfig) -> list[st
     has_path = target.path is not None
     dast_url = _dast_target_url_resolved(target, config)
     has_dast = bool(dast_url)
+    path_modules = [SAST_MODULE_NAME, SCA_MODULE_NAME, IAC_MODULE_NAME]
     if has_path and has_dast:
-        return [SAST_MODULE_NAME, DAST_MODULE_NAME]
+        return [*path_modules, DAST_MODULE_NAME]
     if has_path:
-        return [SAST_MODULE_NAME]
+        return path_modules
     if has_dast:
         return [DAST_MODULE_NAME]
     return []

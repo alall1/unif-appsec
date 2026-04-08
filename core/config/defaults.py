@@ -33,6 +33,8 @@ def _base_profile_shell() -> dict[str, Any]:
         },
         "sast": {},
         "dast": {},
+        "sca": {},
+        "iac": {},
         "suppressions": [],
     }
 

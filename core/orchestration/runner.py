@@ -67,7 +67,7 @@ def run_scan(
             StructuredDiagnostic(
                 code="no_modules_selected",
                 message=(
-                    "No scan modules selected: set scan.modules, use --sast/--dast/--all, "
+                    "No scan modules selected: set scan.modules, use --sast/--dast/--sca/--iac/--all, "
                     "or provide a filesystem path and/or DAST target URL for auto-selection."
                 ),
             )

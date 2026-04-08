@@ -12,7 +12,12 @@ from core.config.loader import load_resolved_config
 from core.config.models import ScanTarget
 from core.exports.json_writer import write_scan_json
 from core.logging.setup import configure_logging
-from core.orchestration.constants import DAST_MODULE_NAME, SAST_MODULE_NAME
+from core.orchestration.constants import (
+    DAST_MODULE_NAME,
+    IAC_MODULE_NAME,
+    SAST_MODULE_NAME,
+    SCA_MODULE_NAME,
+)
 from core.orchestration.exit_code import finding_counts_for_fail
 from core.orchestration.results import AggregateScanResult
 from core.orchestration.runner import run_scan
@@ -35,7 +40,15 @@ def build_parser() -> argparse.ArgumentParser:
     mod = scan.add_mutually_exclusive_group()
     mod.add_argument("--sast", action="store_const", const="sast", dest="module_choice", help="Run SAST module only")
     mod.add_argument("--dast", action="store_const", const="dast", dest="module_choice", help="Run DAST module only")
-    mod.add_argument("--all", action="store_const", const="all", dest="module_choice", help="Run SAST and DAST modules")
+    mod.add_argument("--sca", action="store_const", const="sca", dest="module_choice", help="Run SCA module only")
+    mod.add_argument("--iac", action="store_const", const="iac", dest="module_choice", help="Run IaC module only")
+    mod.add_argument(
+        "--all",
+        action="store_const",
+        const="all",
+        dest="module_choice",
+        help="Run all built-in modules (SAST, DAST, SCA, IaC)",
+    )
 
     scan.add_argument("--config", type=Path, default=None, help="Path to config file (.yaml/.yml/.json)")
     scan.add_argument("--profile", default=None, choices=["fast", "balanced", "deep"])
@@ -69,8 +82,12 @@ def _cli_overlay_from_args(args: argparse.Namespace) -> dict:
         overlay.setdefault("scan", {})["modules"] = [SAST_MODULE_NAME]
     elif args.module_choice == "dast":
         overlay.setdefault("scan", {})["modules"] = [DAST_MODULE_NAME]
+    elif args.module_choice == "sca":
+        overlay.setdefault("scan", {})["modules"] = [SCA_MODULE_NAME]
+    elif args.module_choice == "iac":
+        overlay.setdefault("scan", {})["modules"] = [IAC_MODULE_NAME]
     elif args.module_choice == "all":
-        overlay.setdefault("scan", {})["modules"] = [SAST_MODULE_NAME, DAST_MODULE_NAME]
+        overlay.setdefault("scan", {})["modules"] = [SAST_MODULE_NAME, DAST_MODULE_NAME, SCA_MODULE_NAME, IAC_MODULE_NAME]
 
     if args.format is not None:
         overlay.setdefault("output", {})["format"] = args.format
