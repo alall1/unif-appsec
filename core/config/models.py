@@ -97,11 +97,23 @@ class SuppressionRulePathGlob(BaseModel):
     justification: str
 
 
+class SuppressionRuleDependencyCoordinate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    kind: Literal["rule_dependency_coordinate"] = "rule_dependency_coordinate"
+    rule_id: str
+    ecosystem: str
+    package_name: str
+    package_version: str
+    justification: str
+
+
 SuppressionEntry = (
     SuppressionFingerprint
     | SuppressionRuleLocation
     | SuppressionRuleEndpoint
     | SuppressionRulePathGlob
+    | SuppressionRuleDependencyCoordinate
 )
 
 
@@ -122,6 +134,7 @@ class ResolvedConfig(BaseModel):
     limits: LimitsConfig = Field(default_factory=LimitsConfig)
     sast: dict[str, Any] = Field(default_factory=dict)
     dast: dict[str, Any] = Field(default_factory=dict)
+    sca: dict[str, Any] = Field(default_factory=dict)
     suppressions: list[SuppressionEntry] = Field(default_factory=list)
 
     @field_validator("suppressions", mode="before")
@@ -140,6 +153,7 @@ class ResolvedConfig(BaseModel):
                     SuppressionRuleLocation,
                     SuppressionRuleEndpoint,
                     SuppressionRulePathGlob,
+                    SuppressionRuleDependencyCoordinate,
                 ),
             ):
                 out.append(item)
@@ -155,6 +169,8 @@ class ResolvedConfig(BaseModel):
                 out.append(SuppressionRuleEndpoint.model_validate(item))
             elif kind == "rule_path_glob":
                 out.append(SuppressionRulePathGlob.model_validate(item))
+            elif kind == "rule_dependency_coordinate":
+                out.append(SuppressionRuleDependencyCoordinate.model_validate(item))
             else:
                 raise ValueError(f"Unknown suppression kind: {kind!r}")
         return out

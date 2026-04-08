@@ -97,6 +97,17 @@ modules/sast/symbols/__init__.py
 modules/sast/symbols/map.py
 modules/sast/traces/__init__.py
 modules/sast/traces/builder.py
+modules/sca/__init__.py
+modules/sca/advisories.py
+modules/sca/discovery.py
+modules/sca/findings_mapper.py
+modules/sca/inventory.py
+modules/sca/matcher.py
+modules/sca/plugin.py
+modules/sca/parsers/__init__.py
+modules/sca/parsers/pipfile_lock.py
+modules/sca/parsers/poetry_lock.py
+modules/sca/parsers/requirements_txt.py
 unif_appsec.egg-info/PKG-INFO
 unif_appsec.egg-info/SOURCES.txt
 unif_appsec.egg-info/dependency_links.txt

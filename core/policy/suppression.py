@@ -5,7 +5,7 @@ from pathlib import Path
 
 from core.config.models import ResolvedConfig, SuppressionEntry
 from core.findings.fingerprints import _canonical_url_for_fingerprint, _posix_relative_safe
-from core.findings.models import CodeLocation, Finding, HttpLocation
+from core.findings.models import CodeLocation, DependencyLocation, Finding, HttpLocation
 
 
 def _primary_code(f: Finding) -> CodeLocation | None:
@@ -78,10 +78,34 @@ def _match_rule_path_glob(rule_id: str, path_glob: str, finding: Finding, scan_r
     return fnmatch.fnmatch(rel, path_glob)
 
 
+def _match_rule_dependency_coordinate(
+    rule_id: str,
+    ecosystem: str,
+    package_name: str,
+    package_version: str,
+    finding: Finding,
+) -> bool:
+    if finding.rule_id != rule_id:
+        return False
+    if finding.location_type != "dependency" or not finding.locations:
+        return False
+    for loc in finding.locations:
+        if not isinstance(loc, DependencyLocation):
+            continue
+        return (
+            (loc.ecosystem or "") == ecosystem
+            and (loc.package_name or "") == package_name
+            and (loc.package_version or "") == package_version
+        )
+    return False
+
+
 def _tier(entry: SuppressionEntry) -> int:
     if entry.kind == "fingerprint":
         return 0
     if entry.kind == "rule_location":
+        return 1
+    if entry.kind == "rule_dependency_coordinate":
         return 1
     if entry.kind == "rule_endpoint":
         return 2
@@ -108,6 +132,15 @@ def apply_suppressions(findings: list[Finding], config: ResolvedConfig, scan_roo
                     entry.url,
                     entry.method,
                     entry.endpoint_signature,
+                    f,
+                )
+                reason = entry.justification
+            elif entry.kind == "rule_dependency_coordinate":
+                matched = _match_rule_dependency_coordinate(
+                    entry.rule_id,
+                    entry.ecosystem,
+                    entry.package_name,
+                    entry.package_version,
                     f,
                 )
                 reason = entry.justification

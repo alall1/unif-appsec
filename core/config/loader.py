@@ -92,6 +92,7 @@ def _coerce_resolved(merged: dict[str, Any]) -> ResolvedConfig:
         limits=limits,
         sast=dict(merged.get("sast") or {}),
         dast=dict(merged.get("dast") or {}),
+        sca=dict(merged.get("sca") or {}),
         suppressions=merged.get("suppressions") or [],
     )
 

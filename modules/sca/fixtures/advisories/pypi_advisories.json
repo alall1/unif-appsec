@@ -1,0 +1,18 @@
+{
+  "advisories": [
+    {
+      "ecosystem": "pypi",
+      "package_name": "requests",
+      "advisory_id": "OSV-EXAMPLE-REQUESTS-0001",
+      "advisory_source": "local_fixture",
+      "advisory_url": "https://example.invalid/advisories/OSV-EXAMPLE-REQUESTS-0001",
+      "title": "Requests prior to 2.32.0 allows header injection in crafted edge cases (fixture)",
+      "severity": "high",
+      "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+      "cwe_ids": ["CWE-113"],
+      "vulnerable_specifiers": ["<2.32.0"],
+      "fixed_versions": ["2.32.0"]
+    }
+  ]
+}
+

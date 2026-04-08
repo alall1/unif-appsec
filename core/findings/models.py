@@ -74,6 +74,33 @@ class DastEvidence(BaseModel):
     baseline_comparison: Optional[str] = None
 
 
+class ScaEvidence(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    source_file: Optional[str] = None
+    package_identifier: Optional[str] = None
+    advisory_id: Optional[str] = None
+    advisory_source: Optional[str] = None
+    fixed_versions: Optional[list[str]] = None
+    dependency_path: Optional[str] = None
+
+
+class ScaDetails(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    ecosystem: str
+    package_name: str
+    package_version: str
+    advisory_id: str
+    advisory_source: str
+
+    advisory_url: Optional[str] = None
+    fixed_versions: Optional[list[str]] = None
+    cvss: Optional[str] = None
+    cwe_ids: Optional[list[str]] = None
+    dependency_scope: Optional[str] = None
+
+
 class TraceStep(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -136,7 +163,9 @@ class Finding(BaseModel):
     locations: Optional[list[LocationExtension]] = None
     sast_evidence: Optional[SastEvidence] = None
     dast_evidence: Optional[DastEvidence] = None
+    sca_evidence: Optional[ScaEvidence] = None
     trace: Optional[list[TraceStep]] = None
+    sca_details: Optional[ScaDetails] = None
 
     @staticmethod
     def utc_now_rfc3339() -> str:

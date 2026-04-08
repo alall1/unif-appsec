@@ -1,5 +1,6 @@
 pydantic>=2.6
 PyYAML>=6.0
+packaging>=24.0
 
 [dev]
 pytest>=8.0

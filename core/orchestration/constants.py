@@ -2,3 +2,4 @@
 
 SAST_MODULE_NAME = "python_sast"
 DAST_MODULE_NAME = "http_dast"
+SCA_MODULE_NAME = "python_sca"

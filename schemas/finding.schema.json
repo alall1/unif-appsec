@@ -96,12 +96,52 @@
               "parameter": { "type": "string" },
               "endpoint_signature": { "type": "string" }
             }
+          },
+          {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["ecosystem", "package_name", "package_version"],
+            "properties": {
+              "ecosystem": { "type": "string" },
+              "package_name": { "type": "string" },
+              "package_version": { "type": "string" },
+              "dependency_path": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["provider"],
+            "properties": {
+              "resource_type": { "type": "string" },
+              "resource_id": { "type": "string" },
+              "resource_path": { "type": "string" },
+              "provider": { "type": "string" }
+            }
           }
         ]
       }
     },
     "sast_evidence": { "type": "object" },
     "dast_evidence": { "type": "object" },
+    "sca_evidence": { "type": "object" },
+    "sca_details": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ecosystem", "package_name", "package_version", "advisory_id", "advisory_source"],
+      "properties": {
+        "ecosystem": { "type": "string" },
+        "package_name": { "type": "string" },
+        "package_version": { "type": "string" },
+        "advisory_id": { "type": "string" },
+        "advisory_source": { "type": "string" },
+        "advisory_url": { "type": "string" },
+        "fixed_versions": { "type": "array", "items": { "type": "string" } },
+        "cvss": { "type": "string" },
+        "cwe_ids": { "type": "array", "items": { "type": "string" } },
+        "dependency_scope": { "type": "string" }
+      }
+    },
     "trace": {
       "type": "array",
       "items": {
