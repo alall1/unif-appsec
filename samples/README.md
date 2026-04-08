@@ -1,22 +1,22 @@
-# Samples for Unified AppSec Platform (V1)
+# Samples for Unified AppSec Platform (V1 + additive V2)
 
-This directory contains small, realistic, local-first targets for validating the V1 platform end to end:
+This directory contains small, realistic, local-first targets for validating the platform end to end without changing core behavior.
 
 - `sast/`: Python static-analysis fixtures (vulnerable, safe, and near-miss patterns)
 - `dast/`: HTTP/API targets for passive and active DAST checks
-- `combined/`: Flask applications that are useful for both SAST and DAST workflows
+- `sca/`: Python dependency manifest fixtures for constrained V2 SCA scope
+- `iac/`: Terraform `.tf` fixtures for constrained V2 IaC scope
+- `combined/`: Flask applications and paired manifests/IaC for multi-engine workflows
 
-These samples are intentionally scoped to current V1 capabilities from `docs/master_spec.md`:
+These samples intentionally follow `docs/master_spec.md` boundaries:
 
-- Core + SAST + DAST only
-- Python-focused SAST
-- HTTP/API-first DAST
-- No browser-heavy SPA requirements
-- No advanced SSO/MFA flows
+- SAST: Python AST/taint scope only
+- DAST: HTTP/API-first checks only (no browser-heavy SPA assumptions)
+- SCA: Python manifest/lockfile-first (`requirements.txt`, `poetry.lock`, `Pipfile.lock`)
+- IaC: Terraform `.tf` only
+- No advanced auth, SSO, MFA, or unsupported ecosystems/formats
 
-## Quick Start
-
-Create one virtual environment at repo root and reuse it for samples:
+## Quick Setup
 
 ```bash
 python -m venv .venv
@@ -25,28 +25,43 @@ pip install --upgrade pip
 pip install -r samples/requirements.txt
 ```
 
-Then run any sample using the commands in that sample's README.
+## Suggested Engine-to-Sample Mapping
 
-## Suggested V1 Finding Mapping
+### SAST
+- `sast/python_command_injection`: command injection (plus shell usage contrast)
+- `sast/python_eval_exec_injection`: eval/exec sinks and near-miss static eval
+- `sast/python_sql_injection`: string-built SQL vs parameterized query
+- `sast/python_path_traversal`: unsafe path join vs normalized boundary check
+- `sast/python_weak_crypto`: MD5/SHA1 weak usage vs stronger alternatives
+- `sast/python_safe_patterns`: safe allowlist/literal parsing and false-positive resistance
 
-### SAST Targets
-
-- `sast/python_command_injection`: command injection + eval/exec injection
-- `sast/python_eval_exec_injection`: eval/exec injection (focused)
-- `sast/python_sql_injection`: SQL injection
-- `sast/python_path_traversal`: path traversal
-- `sast/python_weak_crypto`: weak hash/crypto usage
-- `sast/python_safe_patterns`: false-positive resistance and safe constructions
-
-### DAST Targets
-
+### DAST
 - `dast/simple_headers_app`: missing security headers
 - `dast/simple_reflection_app`: reflected input behavior
-- `dast/simple_error_leak_app`: debug/info leak markers and SQL-like error signatures
-- `dast/simple_cors_app`: overly permissive CORS
-- `dast/simple_api_target`: API-first discovery/audit workflows (including OpenAPI seeding)
+- `dast/simple_error_leak_app`: debug/info leak and SQL-like error signatures
+- `dast/simple_cors_app`: permissive CORS headers
+- `dast/simple_api_target`: API-first endpoint and parameter coverage (OpenAPI seed included)
 
-### Combined Targets
+### SCA
+- `sca/python_vulnerable_deps`: `requests==2.31.0` (expected advisory match in local fixture DB)
+- `sca/python_safe_deps`: `requests==2.32.0` (expected clean for the same advisory)
 
-- `combined/flask_vulnerable_app`: intentionally vulnerable routes and unsafe helper code
-- `combined/flask_safe_app`: safer equivalents with similar route structure
+### IaC
+- `iac/terraform_public_ingress`: public ingress wildcard CIDR finding
+- `iac/terraform_unencrypted_storage`: missing S3 encryption and weak public access block
+- `iac/terraform_safe_baseline`: safe baseline for the same check families
+
+### Combined
+- `combined/flask_vulnerable_app`: combined SAST + DAST vulnerable target
+- `combined/flask_safe_app`: safer mirror routes for reduced findings
+- `combined/app_with_vulnerable_requirements`: Flask app + vulnerable `requirements.txt` (SAST/DAST/SCA)
+- `combined/app_with_safe_terraform`: Flask app + safe Terraform baseline (SAST/DAST + IaC no-findings baseline)
+
+## What These Samples Intentionally Do Not Cover
+
+- IAST/runtime instrumentation (deferred to V3)
+- Browser automation, SPA route execution, or JavaScript-heavy crawling
+- Complex SSO/MFA or deep auth workflows
+- Non-Python SCA ecosystems and non-Terraform IaC formats
+- Reachability/exploitability analysis for SCA
+- Live cloud-state validation for IaC
