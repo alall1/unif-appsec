@@ -25,6 +25,26 @@ pip install --upgrade pip
 pip install -r samples/requirements.txt
 ```
 
+## Run All Samples Script
+
+Use the bundled script to install required libraries, run each sample through the scanner once, and aggregate outputs under `samples/output/`.
+
+```bash
+python3 samples/run_all_samples.py
+```
+
+What it does:
+
+- creates/uses repo-local `.venv`
+- installs scanner package (`pip install -e .`) and sample runtime deps
+- runs one scan per sample target across SAST, DAST, SCA, and IaC-relevant fixtures
+- writes per-scan JSON outputs and logs in a timestamped run directory:
+  - `samples/output/<timestamp>/results/`
+  - `samples/output/<timestamp>/logs/`
+  - `samples/output/<timestamp>/summary.json`
+  - `samples/output/<timestamp>/summary.md`
+- updates `samples/output/LATEST_RUN.txt` with the most recent run path
+
 ## Suggested Engine-to-Sample Mapping
 
 ### SAST
