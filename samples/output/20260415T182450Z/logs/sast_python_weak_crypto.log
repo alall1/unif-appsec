@@ -1,0 +1,7 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/sast/python_weak_crypto
+  Modules run: python_sast
+  Active findings: 2 (total rows: 2)
+    medium: 2
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_weak_crypto.json
+  Exit: 1 (policy fail: 2 finding(s) meet severity/confidence thresholds)

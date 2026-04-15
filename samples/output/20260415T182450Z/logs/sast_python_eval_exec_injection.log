@@ -1,0 +1,7 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/sast/python_eval_exec_injection
+  Modules run: python_sast
+  Active findings: 3 (total rows: 3)
+    critical: 3
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_eval_exec_injection.json
+  Exit: 1 (policy fail: 3 finding(s) meet severity/confidence thresholds)

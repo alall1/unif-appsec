@@ -1,0 +1,8 @@
+Scan summary
+  Target: url=http://127.0.0.1:5105; openapi=/Users/anujlall/Desktop/repos/unif-appsec/samples/dast/simple_api_target/openapi.yaml
+  Modules run: http_dast
+  Active findings: 17 (total rows: 17)
+    medium: 6
+    low: 11
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_api_target.json
+  Exit: 1 (policy fail: 6 finding(s) meet severity/confidence thresholds)

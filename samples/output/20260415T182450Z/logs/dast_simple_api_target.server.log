@@ -1,0 +1,64 @@
+INFO:     Started server process [10310]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:5105 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53362 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53363 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53364 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53365 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53366 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53367 - "GET /debug HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53368 - "GET /.git/HEAD HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53369 - "TRACE / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53372 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53373 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53374 - "GET /debug HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53375 - "GET /.git/HEAD HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53376 - "TRACE /health HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:53377 - "GET /items?limit=unifneutral&q=unifneutral HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53378 - "GET /items?limit=unif_baseline_marker HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53379 - "GET /items?limit=unifxss_36bc0bbb HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53380 - "GET /items?limit=unifxss_36bc0bbb%3Csvg%2Fonload%3Dalert%281%29%3E HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53381 - "GET /items?q=unif_baseline_marker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53382 - "GET /items?q=unifxss_36bc0bbb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53383 - "GET /items?q=unifxss_36bc0bbb%3Csvg%2Fonload%3Dalert%281%29%3E HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53384 - "GET /items?limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53385 - "GET /items?limit=%27%22 HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53386 - "GET /items?limit=1%27+AND+%271%27%3D%271 HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:53387 - "GET /items?q=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53388 - "GET /items?q=%27%22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53389 - "GET /items?q=1%27+AND+%271%27%3D%271 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53390 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53391 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53392 - "GET /debug HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53393 - "GET /.git/HEAD HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53394 - "TRACE /items?limit=unifneutral&q=unifneutral HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:53395 - "GET /reflect?value=unifneutral HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53396 - "GET /reflect?value=unif_baseline_marker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53397 - "GET /reflect?value=unifxss_36bc0bbb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53398 - "GET /reflect?value=unifxss_36bc0bbb%3Csvg%2Fonload%3Dalert%281%29%3E HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53399 - "GET /reflect?value=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53400 - "GET /reflect?value=%27%22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53401 - "GET /reflect?value=1%27+AND+%271%27%3D%271 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53402 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53403 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53404 - "GET /debug HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53405 - "GET /.git/HEAD HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53406 - "TRACE /reflect?value=unifneutral HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:53407 - "GET /sql?id=unifneutral HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53408 - "GET /sql?id=unif_baseline_marker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53409 - "GET /sql?id=unifxss_36bc0bbb HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53410 - "GET /sql?id=unifxss_36bc0bbb%3Csvg%2Fonload%3Dalert%281%29%3E HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53411 - "GET /sql?id=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53412 - "GET /sql?id=%27%22 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53413 - "GET /sql?id=1%27+AND+%271%27%3D%271 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53414 - "GET /.env HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53415 - "GET /config.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53416 - "GET /debug HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53417 - "GET /.git/HEAD HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53418 - "TRACE /sql?id=unifneutral HTTP/1.1" 405 Method Not Allowed
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10310]

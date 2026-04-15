@@ -1,0 +1,13 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5101
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [15/Apr/2026 11:24:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Apr/2026 11:24:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Apr/2026 11:24:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Apr/2026 11:24:56] "[33mGET /.env HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Apr/2026 11:24:57] "[33mGET /config.json HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Apr/2026 11:24:57] "[33mGET /debug HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Apr/2026 11:24:58] "[33mGET /.git/HEAD HTTP/1.1[0m" 404 -
+127.0.0.1 - - [15/Apr/2026 11:24:58] "[31m[1mTRACE / HTTP/1.1[0m" 405 -

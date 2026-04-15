@@ -1,0 +1,6 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/iac/terraform_safe_baseline
+  Modules run: terraform_iac
+  Active findings: 0 (total rows: 0)
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_safe_baseline.json
+  Exit: 0 (no unsuppressed findings meeting fail policy)

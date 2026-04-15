@@ -1,0 +1,7 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/iac/terraform_unencrypted_storage
+  Modules run: terraform_iac
+  Active findings: 2 (total rows: 2)
+    medium: 2
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_unencrypted_storage.json
+  Exit: 1 (policy fail: 2 finding(s) meet severity/confidence thresholds)

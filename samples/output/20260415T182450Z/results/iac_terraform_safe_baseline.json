@@ -1,0 +1,1 @@
+{"scan_result_schema_version": "1.0.0", "findings": [], "module_results": [{"module": "terraform_iac", "warnings": [], "errors": [], "metrics": {"duration_ms": 2.662291983142495, "files_scanned": 1, "resources_evaluated": 3, "checks_executed": 9}}]}

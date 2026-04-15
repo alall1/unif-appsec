@@ -1,0 +1,7 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/sca/python_vulnerable_deps
+  Modules run: python_sca
+  Active findings: 1 (total rows: 1)
+    high: 1
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sca_python_vulnerable_deps.json
+  Exit: 1 (policy fail: 1 finding(s) meet severity/confidence thresholds)

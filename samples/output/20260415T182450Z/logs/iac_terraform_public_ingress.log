@@ -1,0 +1,7 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/iac/terraform_public_ingress
+  Modules run: terraform_iac
+  Active findings: 1 (total rows: 1)
+    high: 1
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_public_ingress.json
+  Exit: 1 (policy fail: 1 finding(s) meet severity/confidence thresholds)

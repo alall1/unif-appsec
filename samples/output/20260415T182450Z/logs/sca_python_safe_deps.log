@@ -1,0 +1,6 @@
+Scan summary
+  Target: path=/Users/anujlall/Desktop/repos/unif-appsec/samples/sca/python_safe_deps
+  Modules run: python_sca
+  Active findings: 0 (total rows: 0)
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sca_python_safe_deps.json
+  Exit: 0 (no unsuppressed findings meeting fail policy)

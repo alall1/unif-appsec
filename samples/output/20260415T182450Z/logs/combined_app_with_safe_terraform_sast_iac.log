@@ -1,0 +1,9 @@
+usage: appsec scan [-h] [--sast | --dast | --sca | --iac | --all]
+                   [--config CONFIG] [--profile {fast,balanced,deep}]
+                   [--format {json}] [--output OUTPUT]
+                   [--fail-on {info,low,medium,high,critical}]
+                   [--confidence-threshold {low,medium,high}]
+                   [--include INCLUDE] [--exclude EXCLUDE]
+                   [--target-url TARGET_URL] [--openapi OPENAPI]
+                   [target]
+appsec scan: error: argument --iac: not allowed with argument --sast

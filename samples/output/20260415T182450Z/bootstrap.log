@@ -1,0 +1,54 @@
+$ /Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/pip install --upgrade pip
+Requirement already satisfied: pip in ./.venv/lib/python3.13/site-packages (26.0.1)
+
+$ /Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/pip install -e .
+Obtaining file:///Users/anujlall/Desktop/repos/unif-appsec
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: pydantic>=2.6 in ./.venv/lib/python3.13/site-packages (from unif-appsec==0.1.0) (2.12.5)
+Requirement already satisfied: PyYAML>=6.0 in ./.venv/lib/python3.13/site-packages (from unif-appsec==0.1.0) (6.0.3)
+Requirement already satisfied: packaging>=24.0 in ./.venv/lib/python3.13/site-packages (from unif-appsec==0.1.0) (26.0)
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.6->unif-appsec==0.1.0) (0.7.0)
+Requirement already satisfied: pydantic-core==2.41.5 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.6->unif-appsec==0.1.0) (2.41.5)
+Requirement already satisfied: typing-extensions>=4.14.1 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.6->unif-appsec==0.1.0) (4.15.0)
+Requirement already satisfied: typing-inspection>=0.4.2 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.6->unif-appsec==0.1.0) (0.4.2)
+Building wheels for collected packages: unif-appsec
+  Building editable for unif-appsec (pyproject.toml): started
+  Building editable for unif-appsec (pyproject.toml): finished with status 'done'
+  Created wheel for unif-appsec: filename=unif_appsec-0.1.0-0.editable-py3-none-any.whl size=4771 sha256=12d9b7ed326ad8fca55ec8f363b6dbf3c27d1a87924137fcc327827498a5126d
+  Stored in directory: /private/var/folders/_8/zz43nrjd0d303k35wqzm53rr0000gn/T/pip-ephem-wheel-cache-w4djlnnn/wheels/4a/6c/25/926dcf6c3c648876524d3489cd6792ae9508a66502c67c54de
+Successfully built unif-appsec
+Installing collected packages: unif-appsec
+  Attempting uninstall: unif-appsec
+    Found existing installation: unif-appsec 0.1.0
+    Uninstalling unif-appsec-0.1.0:
+      Successfully uninstalled unif-appsec-0.1.0
+Successfully installed unif-appsec-0.1.0
+
+$ /Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/pip install -r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt
+Requirement already satisfied: flask>=3.0 in ./.venv/lib/python3.13/site-packages (from -r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (3.1.3)
+Requirement already satisfied: fastapi>=0.110 in ./.venv/lib/python3.13/site-packages (from -r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (0.135.3)
+Requirement already satisfied: uvicorn>=0.29 in ./.venv/lib/python3.13/site-packages (from -r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 3)) (0.44.0)
+Requirement already satisfied: blinker>=1.9.0 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (1.9.0)
+Requirement already satisfied: click>=8.1.3 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (8.3.2)
+Requirement already satisfied: itsdangerous>=2.2.0 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (2.2.0)
+Requirement already satisfied: jinja2>=3.1.2 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (3.1.6)
+Requirement already satisfied: markupsafe>=2.1.1 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (3.0.3)
+Requirement already satisfied: werkzeug>=3.1.0 in ./.venv/lib/python3.13/site-packages (from flask>=3.0->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 1)) (3.1.8)
+Requirement already satisfied: starlette>=0.46.0 in ./.venv/lib/python3.13/site-packages (from fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (1.0.0)
+Requirement already satisfied: pydantic>=2.9.0 in ./.venv/lib/python3.13/site-packages (from fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (2.12.5)
+Requirement already satisfied: typing-extensions>=4.8.0 in ./.venv/lib/python3.13/site-packages (from fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (4.15.0)
+Requirement already satisfied: typing-inspection>=0.4.2 in ./.venv/lib/python3.13/site-packages (from fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (0.4.2)
+Requirement already satisfied: annotated-doc>=0.0.2 in ./.venv/lib/python3.13/site-packages (from fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (0.0.4)
+Requirement already satisfied: h11>=0.8 in ./.venv/lib/python3.13/site-packages (from uvicorn>=0.29->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 3)) (0.16.0)
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.9.0->fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.41.5 in ./.venv/lib/python3.13/site-packages (from pydantic>=2.9.0->fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (2.41.5)
+Requirement already satisfied: anyio<5,>=3.6.2 in ./.venv/lib/python3.13/site-packages (from starlette>=0.46.0->fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (4.13.0)
+Requirement already satisfied: idna>=2.8 in ./.venv/lib/python3.13/site-packages (from anyio<5,>=3.6.2->starlette>=0.46.0->fastapi>=0.110->-r /Users/anujlall/Desktop/repos/unif-appsec/samples/requirements.txt (line 2)) (3.11)
+

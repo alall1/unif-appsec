@@ -1,0 +1,7 @@
+Scan summary
+  Target: url=http://127.0.0.1:5202
+  Modules run: http_dast
+  Active findings: 1 (total rows: 1)
+    info: 1
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_flask_safe_app_dast.json
+  Exit: 0 (no unsuppressed findings meeting fail policy)

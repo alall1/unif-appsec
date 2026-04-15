@@ -1,0 +1,8 @@
+Scan summary
+  Target: url=http://127.0.0.1:5203
+  Modules run: http_dast
+  Active findings: 2 (total rows: 2)
+    low: 1
+    info: 1
+  Output: /Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_app_with_vulnerable_requirements_dast.json
+  Exit: 0 (no unsuppressed findings meeting fail policy)

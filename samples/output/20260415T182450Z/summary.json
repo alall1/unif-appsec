@@ -1,0 +1,519 @@
+{
+  "generated_at": "2026-04-15T18:25:54.957888+00:00",
+  "run_directory": "output/20260415T182450Z",
+  "counts": {
+    "total": 24,
+    "ok": 22,
+    "error": 2
+  },
+  "results": [
+    {
+      "name": "sast_python_command_injection",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_command_injection",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_command_injection.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_command_injection.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_command_injection.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:52.725588+00:00",
+      "finished_at": "2026-04-15T18:24:53.143359+00:00",
+      "duration_seconds": 0.417
+    },
+    {
+      "name": "sast_python_eval_exec_injection",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_eval_exec_injection",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_eval_exec_injection.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_eval_exec_injection.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_eval_exec_injection.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.143456+00:00",
+      "finished_at": "2026-04-15T18:24:53.274351+00:00",
+      "duration_seconds": 0.131
+    },
+    {
+      "name": "sast_python_sql_injection",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_sql_injection",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_sql_injection.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_sql_injection.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_sql_injection.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.274414+00:00",
+      "finished_at": "2026-04-15T18:24:53.404305+00:00",
+      "duration_seconds": 0.13
+    },
+    {
+      "name": "sast_python_path_traversal",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_path_traversal",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_path_traversal.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_path_traversal.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_path_traversal.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.404359+00:00",
+      "finished_at": "2026-04-15T18:24:53.533961+00:00",
+      "duration_seconds": 0.129
+    },
+    {
+      "name": "sast_python_weak_crypto",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_weak_crypto",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_weak_crypto.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_weak_crypto.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_weak_crypto.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.534026+00:00",
+      "finished_at": "2026-04-15T18:24:53.664158+00:00",
+      "duration_seconds": 0.13
+    },
+    {
+      "name": "sast_python_safe_patterns",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sast/python_safe_patterns",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sast_python_safe_patterns.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sast_python_safe_patterns.json",
+      "log_file": "output/20260415T182450Z/logs/sast_python_safe_patterns.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.664215+00:00",
+      "finished_at": "2026-04-15T18:24:53.794797+00:00",
+      "duration_seconds": 0.13
+    },
+    {
+      "name": "sca_python_vulnerable_deps",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sca/python_vulnerable_deps",
+        "--sca",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sca_python_vulnerable_deps.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sca_python_vulnerable_deps.json",
+      "log_file": "output/20260415T182450Z/logs/sca_python_vulnerable_deps.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.794861+00:00",
+      "finished_at": "2026-04-15T18:24:53.918625+00:00",
+      "duration_seconds": 0.124
+    },
+    {
+      "name": "sca_python_safe_deps",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/sca/python_safe_deps",
+        "--sca",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/sca_python_safe_deps.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/sca_python_safe_deps.json",
+      "log_file": "output/20260415T182450Z/logs/sca_python_safe_deps.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:53.918702+00:00",
+      "finished_at": "2026-04-15T18:24:54.045052+00:00",
+      "duration_seconds": 0.126
+    },
+    {
+      "name": "iac_terraform_public_ingress",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/iac/terraform_public_ingress",
+        "--iac",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_public_ingress.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/iac_terraform_public_ingress.json",
+      "log_file": "output/20260415T182450Z/logs/iac_terraform_public_ingress.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.045138+00:00",
+      "finished_at": "2026-04-15T18:24:54.170462+00:00",
+      "duration_seconds": 0.125
+    },
+    {
+      "name": "iac_terraform_unencrypted_storage",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/iac/terraform_unencrypted_storage",
+        "--iac",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_unencrypted_storage.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/iac_terraform_unencrypted_storage.json",
+      "log_file": "output/20260415T182450Z/logs/iac_terraform_unencrypted_storage.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.170534+00:00",
+      "finished_at": "2026-04-15T18:24:54.295756+00:00",
+      "duration_seconds": 0.125
+    },
+    {
+      "name": "iac_terraform_safe_baseline",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/iac/terraform_safe_baseline",
+        "--iac",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/iac_terraform_safe_baseline.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/iac_terraform_safe_baseline.json",
+      "log_file": "output/20260415T182450Z/logs/iac_terraform_safe_baseline.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.295839+00:00",
+      "finished_at": "2026-04-15T18:24:54.421922+00:00",
+      "duration_seconds": 0.126
+    },
+    {
+      "name": "combined_flask_vulnerable_app_sast",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/combined/flask_vulnerable_app",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_flask_vulnerable_app_sast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_flask_vulnerable_app_sast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_flask_vulnerable_app_sast.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.421997+00:00",
+      "finished_at": "2026-04-15T18:24:54.553215+00:00",
+      "duration_seconds": 0.131
+    },
+    {
+      "name": "combined_flask_safe_app_sast",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/combined/flask_safe_app",
+        "--sast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_flask_safe_app_sast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_flask_safe_app_sast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_flask_safe_app_sast.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.553286+00:00",
+      "finished_at": "2026-04-15T18:24:54.683388+00:00",
+      "duration_seconds": 0.13
+    },
+    {
+      "name": "combined_app_with_vulnerable_requirements_sast_sca",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/combined/app_with_vulnerable_requirements",
+        "--sast",
+        "--sca",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_app_with_vulnerable_requirements_sast_sca.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_app_with_vulnerable_requirements_sast_sca.json",
+      "log_file": "output/20260415T182450Z/logs/combined_app_with_vulnerable_requirements_sast_sca.log",
+      "exit_code": 2,
+      "status": "error",
+      "started_at": "2026-04-15T18:24:54.683466+00:00",
+      "finished_at": "2026-04-15T18:24:54.805704+00:00",
+      "duration_seconds": 0.122
+    },
+    {
+      "name": "combined_app_with_safe_terraform_sast_iac",
+      "kind": "filesystem",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "samples/combined/app_with_safe_terraform",
+        "--sast",
+        "--iac",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_app_with_safe_terraform_sast_iac.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_app_with_safe_terraform_sast_iac.json",
+      "log_file": "output/20260415T182450Z/logs/combined_app_with_safe_terraform_sast_iac.log",
+      "exit_code": 2,
+      "status": "error",
+      "started_at": "2026-04-15T18:24:54.805791+00:00",
+      "finished_at": "2026-04-15T18:24:54.929232+00:00",
+      "duration_seconds": 0.123
+    },
+    {
+      "name": "dast_simple_headers_app",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5101",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_headers_app.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/dast_simple_headers_app.json",
+      "log_file": "output/20260415T182450Z/logs/dast_simple_headers_app.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:54.929334+00:00",
+      "finished_at": "2026-04-15T18:24:58.834022+00:00",
+      "duration_seconds": 3.698
+    },
+    {
+      "name": "dast_simple_reflection_app",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5102",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_reflection_app.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/dast_simple_reflection_app.json",
+      "log_file": "output/20260415T182450Z/logs/dast_simple_reflection_app.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:24:58.835453+00:00",
+      "finished_at": "2026-04-15T18:25:02.738082+00:00",
+      "duration_seconds": 3.695
+    },
+    {
+      "name": "dast_simple_error_leak_app",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5103",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_error_leak_app.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/dast_simple_error_leak_app.json",
+      "log_file": "output/20260415T182450Z/logs/dast_simple_error_leak_app.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:02.739555+00:00",
+      "finished_at": "2026-04-15T18:25:06.647580+00:00",
+      "duration_seconds": 3.7
+    },
+    {
+      "name": "dast_simple_cors_app",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5104",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_cors_app.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/dast_simple_cors_app.json",
+      "log_file": "output/20260415T182450Z/logs/dast_simple_cors_app.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:06.649087+00:00",
+      "finished_at": "2026-04-15T18:25:10.552327+00:00",
+      "duration_seconds": 3.696
+    },
+    {
+      "name": "dast_simple_api_target",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5105",
+        "--dast",
+        "--openapi",
+        "samples/dast/simple_api_target/openapi.yaml",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/dast_simple_api_target.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/dast_simple_api_target.json",
+      "log_file": "output/20260415T182450Z/logs/dast_simple_api_target.log",
+      "exit_code": 1,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:10.556346+00:00",
+      "finished_at": "2026-04-15T18:25:38.841310+00:00",
+      "duration_seconds": 27.875
+    },
+    {
+      "name": "combined_flask_vulnerable_app_dast",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5201",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_flask_vulnerable_app_dast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_flask_vulnerable_app_dast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_flask_vulnerable_app_dast.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:39.027389+00:00",
+      "finished_at": "2026-04-15T18:25:43.190176+00:00",
+      "duration_seconds": 3.747
+    },
+    {
+      "name": "combined_flask_safe_app_dast",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5202",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_flask_safe_app_dast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_flask_safe_app_dast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_flask_safe_app_dast.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:43.194180+00:00",
+      "finished_at": "2026-04-15T18:25:47.103031+00:00",
+      "duration_seconds": 3.701
+    },
+    {
+      "name": "combined_app_with_vulnerable_requirements_dast",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5203",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_app_with_vulnerable_requirements_dast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_app_with_vulnerable_requirements_dast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_app_with_vulnerable_requirements_dast.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:47.104524+00:00",
+      "finished_at": "2026-04-15T18:25:51.019522+00:00",
+      "duration_seconds": 3.707
+    },
+    {
+      "name": "combined_app_with_safe_terraform_dast",
+      "kind": "dast_http",
+      "command": [
+        "/Users/anujlall/Desktop/repos/unif-appsec/.venv/bin/appsec",
+        "scan",
+        "http://127.0.0.1:5204",
+        "--dast",
+        "--format",
+        "json",
+        "--output",
+        "/Users/anujlall/Desktop/repos/unif-appsec/samples/output/20260415T182450Z/results/combined_app_with_safe_terraform_dast.json"
+      ],
+      "output_file": "output/20260415T182450Z/results/combined_app_with_safe_terraform_dast.json",
+      "log_file": "output/20260415T182450Z/logs/combined_app_with_safe_terraform_dast.log",
+      "exit_code": 0,
+      "status": "ok",
+      "started_at": "2026-04-15T18:25:51.020988+00:00",
+      "finished_at": "2026-04-15T18:25:54.956437+00:00",
+      "duration_seconds": 3.727
+    }
+  ]
+}
